@@ -7,6 +7,8 @@ using UnityEngine.EventSystems;
 
 public class TileClickHandler : MonoBehaviour
 {
+    public static TileClickHandler Instance { get; private set; }
+
     [SerializeField] private Tilemap _tilemap;
     [SerializeField] private GameObject _infoPanel;
 
@@ -23,6 +25,19 @@ public class TileClickHandler : MonoBehaviour
     private TileData _selectedTileData;
 
     private List<Button> _constructionButtons = new List<Button>(); // Liste pour stocker les boutons
+
+    private void Awake()
+    {
+        // Assure-toi qu'il n'y a qu'une seule instance de TileClickHandler
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
 
     void Update()
     {
@@ -78,14 +93,15 @@ public class TileClickHandler : MonoBehaviour
         }
         _constructionButtons.Clear();
 
-        List<string> availableConstructions = GetAvailableConstructions(_selectedTileData);
+        // Obtenir les options de construction via le ConstructionManager
+        List<string> availableConstructions = BuildingManager.Instance.GetAvailableConstructions(_cellPosition);
 
         // Créer de nouveaux boutons pour chaque construction possible
         foreach (string construction in availableConstructions)
         {
             Button newButton = Instantiate(_constructionButtonPrefab, _constructionPanel.transform);
             newButton.GetComponentInChildren<TextMeshProUGUI>().text = construction;
-            newButton.onClick.AddListener(() => Build(construction));
+            newButton.onClick.AddListener(() => BuildingManager.Instance.Build(construction, _cellPosition));
             _constructionButtons.Add(newButton);
         }
 
@@ -93,41 +109,16 @@ public class TileClickHandler : MonoBehaviour
         _constructionPanel.SetActive(availableConstructions.Count > 0);
     }
 
-    List<string> GetAvailableConstructions(TileData tileData)
+    public void UpdateTileInfo(TileData tileData)
     {
-        List<string> options = new List<string>();
-
-        if (tileData.Building == BuildingType.None)
+        // Cette méthode met à jour l'info sur la tuile après une construction
+        if (tileData != null)
         {
-            if (tileData.Ground == GroundType.Grass) options.Add("road");
-            //if (tileData.Ground == "Grass") options.Add("Ferme");
-            //if (tileData.Ground == "Hill") options.Add("Mine");
+            _tileInfoPoditionTMP.text = $"Position: {_cellPosition}\n";
+            _tileInfoGroundTMP.text = $"Terrain: {tileData.Ground}\n";
+            _tileInfoReliefTMP.text = $"Relief: {tileData.Relief}\n";
+            _tileInfoBuildingTMP.text = $"Bâtiment: {tileData.Building} (Niveau: {tileData.BuildingLevel})";
         }
-
-        return options;
-    }
-
-    void Build(string construction)
-    {
-        Debug.Log($"Construction de {construction} sur {_cellPosition}");
-
-        // Appliquer la construction à la tuile
-        switch (construction)
-        {
-            case "road":
-                _selectedTileData.Building = BuildingType.Road;
-                break;
-            //case "Ferme":
-            //    _selectedTileData.Building = BuildingType.Farm;
-            //    break;
-            //case "Mine":
-            //    _selectedTileData.Building = BuildingType.Other;
-            //    break;
-        }
-
-        // Rafraîchir l'affichage après construction
-        ShowTileInfo();
-        UpdateConstructionOptions();
     }
 }
 

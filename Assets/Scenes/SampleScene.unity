@@ -715,10 +715,10 @@ RectTransform:
   - {fileID: 1751504187}
   m_Father: {fileID: 1899759755}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 194.19257, y: -132.79645}
-  m_SizeDelta: {x: -394.1906, y: -272.9639}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -93.807434, y: 81.70355}
+  m_SizeDelta: {x: 181.80939, y: 156.0361}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &436484737
 MonoBehaviour:
@@ -790,6 +790,7 @@ Transform:
   - {fileID: 1965806161}
   - {fileID: 2130904647}
   - {fileID: 150562230}
+  - {fileID: 1478479515}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &519420028
@@ -3887,7 +3888,7 @@ MonoBehaviour:
   _healthBarPrefab: {fileID: 2878837103688561933, guid: 8a93017f99617f64b803a93113032b88, type: 3}
   _vfxNewTile: {fileID: 3950696201345914650, guid: 1d1725d9df81a2541bb9d8681c639184, type: 3}
   _audioSource: {fileID: 519420034}
-  _sfxNewTile: {fileID: 0}
+  _sfxNewTile: {fileID: 8300000, guid: 85b90c9a2cc48e541bc5f0d8b04ce425, type: 3}
   clickPower: 1
 --- !u!483693784 &1113809737
 TilemapRenderer:
@@ -18925,6 +18926,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1252776629}
   m_CullTransparentMesh: 1
+--- !u!1 &1478479514
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1478479515}
+  - component: {fileID: 1478479516}
+  m_Layer: 0
+  m_Name: BuildingManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1478479515
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478479514}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 441755016}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1478479516
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478479514}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ea5a92ed738a5248ae9b63f75cfc7ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1537377165
 GameObject:
   m_ObjectHideFlags: 0
@@ -34747,7 +34792,17 @@ MonoBehaviour:
   _reliefTilemap: {fileID: 604529021}
   _buildingTilemap: {fileID: 133455826}
   _fogTilemap: {fileID: 1113809738}
-  _roadTilemap: {fileID: 0}
+  _horizontalRoadTile: {fileID: 11400000, guid: 13f10b58d913e1746a1d8d5d3a4a7911, type: 2}
+  _verticalRoadTile: {fileID: 11400000, guid: d5e8e29f69480e148958b379016744f4, type: 2}
+  _cornerTopLeftTile: {fileID: 11400000, guid: 8c2829a56219eeb4c8c2de37ebaacd02, type: 2}
+  _cornerTopRightTile: {fileID: 11400000, guid: 39105b0703777514695efff4978a87af, type: 2}
+  _cornerBottomLeftTile: {fileID: 11400000, guid: c5ed686a7af7f04459f4d5eff760e186, type: 2}
+  _cornerBottomRightTile: {fileID: 11400000, guid: 33ad565fe3a6b174d98f72ac93a355dd, type: 2}
+  _tShapeTopTile: {fileID: 11400000, guid: 2d42c8ddc37d90946b68fdbe988d4dfa, type: 2}
+  _tShapeLeftTile: {fileID: 11400000, guid: d65266bf97e43164b8bb6c9bd2546ca6, type: 2}
+  _tShapeRightTile: {fileID: 11400000, guid: ba1f9284d9505e74db74be7499c1a205, type: 2}
+  _tShapeBottomTile: {fileID: 11400000, guid: 61b98c045d2f6be459cf140c99d4f877, type: 2}
+  _intersectionRoadTile: {fileID: 11400000, guid: 29f1771939c704847b27fa4ba7d7142d, type: 2}
 --- !u!4 &1965806161
 Transform:
   m_ObjectHideFlags: 0

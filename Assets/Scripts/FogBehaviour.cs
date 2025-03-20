@@ -7,7 +7,6 @@ using UnityEngine.UI;
 
 public class FogManager : MonoBehaviour
 {
-    [SerializeField] private TileManager _tilemapManager; // Référence au gestionnaire de tuiles
     [SerializeField] private Tilemap _fogTilemap; // Tilemap du brouillard
     [SerializeField] private Camera _mainCamera; // Caméra principale
     [SerializeField] private int _fogDirectionRadius = 1; // rayon de visibilité du brouillard - 1 par defaut
@@ -45,7 +44,7 @@ public class FogManager : MonoBehaviour
 
             Vector3 worldPoint = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
             Vector3Int cellPosition = _fogTilemap.WorldToCell(worldPoint);
-            TileData tileData = _tilemapManager.GetTileData(cellPosition);
+            TileData tileData = TileManager.Instance.GetTileData(cellPosition);
 
             if (tileData != null && tileData.CurrentFog > 0)
             {                
@@ -95,7 +94,7 @@ public class FogManager : MonoBehaviour
         foreach (var dir in directions)
         {
             Vector3Int neighborPos = cellPosition + dir;
-            TileData neighborTile = _tilemapManager.GetTileData(neighborPos);
+            TileData neighborTile = TileManager.Instance.GetTileData(neighborPos);
 
             if (neighborTile != null && neighborTile.CurrentFog == 0)
             {

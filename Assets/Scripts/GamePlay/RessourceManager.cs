@@ -13,7 +13,6 @@ public class RessourceManager : MonoBehaviour
     [SerializeField] private int _manaPerLevel = 1; // Combien de mana genere par noveau de ville
     [SerializeField] private float _updateInterval = 5f; // Temps entre chaque mise à jour
     [SerializeField] private int _tiles = 1;
-    [SerializeField] private TileManager _tileManager; // Référence vers le gestionnaire des tuiles
 
     public int TotalManaGain => CalculateTotalManaGain();
 
@@ -73,20 +72,17 @@ public class RessourceManager : MonoBehaviour
     {
         
         Mana += TotalManaGain;
-        Debug.Log($"Mana +{TotalManaGain}! Total : {Mana}");
+        //Debug.Log($"Mana +{TotalManaGain}! Total : {Mana}");
     }
 
     private int CalculateTotalManaGain()
     {
-        if (_tileManager == null) return 0;
-
         int totalGain = 0;
 
-        foreach (var tile in _tileManager.GetClaimedTowns())
+        foreach (var tile in TileManager.Instance.GetClaimedTowns())
         {
             totalGain += tile.BuildingLevel * ManaPerLevel;
         }
-
         return totalGain;
     }
 

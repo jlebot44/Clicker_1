@@ -53,8 +53,8 @@ public class GridOverlay : MonoBehaviour
         lineObj.transform.parent = transform;
         LineRenderer lineRenderer = lineObj.AddComponent<LineRenderer>();
 
-        lineRenderer.startWidth = 0.05f;
-        lineRenderer.endWidth = 0.05f;
+        lineRenderer.startWidth = 0.02f;
+        lineRenderer.endWidth = 0.02f;
         lineRenderer.positionCount = 2;
         lineRenderer.SetPosition(0, start);
         lineRenderer.SetPosition(1, end);
