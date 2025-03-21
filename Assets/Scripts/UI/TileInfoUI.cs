@@ -18,27 +18,28 @@ public class TileInfoUI : MonoBehaviour
 
     private List<Button> _buildingButtons = new List<Button>();
 
-    private void OnEnable()
+    private void Awake()
     {
+        Debug.Log("TileInfoUI Awake - Abonnement aux événements");
         TileClickHandler.OnTileSelected += UpdateTileInfo;
         BuildingManager.OnBuildingConstructed += CloseUI;
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
-        //TileClickHandler.OnTileSelected -= UpdateTileInfo;
-        //BuildingManager.OnBuildingConstructed -= CloseUI;
-        ShowUI(false);
+        TileClickHandler.OnTileSelected -= UpdateTileInfo;
+        BuildingManager.OnBuildingConstructed -= CloseUI;
     }
 
     private void UpdateTileInfo(Vector3Int position, TileData tileData)
     {
+        Debug.Log("ok");
         if (tileData == null || !tileData.isClaimed)
         {
             ShowUI(false);
             return;
         }
-
+        
         _tileInfoPositionTMP.text = $"Position: {position}\n";
         _tileInfoGroundTMP.text = $"Terrain: {tileData.Ground}\n";
         _tileInfoReliefTMP.text = $"Relief: {tileData.Relief}\n";

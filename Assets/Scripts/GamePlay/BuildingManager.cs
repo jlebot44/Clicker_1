@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class BuildingManager : MonoBehaviour
@@ -8,6 +9,8 @@ public class BuildingManager : MonoBehaviour
 
     // Événement pour notifier qu'une construction a été faite
     public static event Action<Vector3Int, TileData> OnBuildingConstructed;
+
+    Vector3Int[] directions = { Vector3Int.up, Vector3Int.down, Vector3Int.left, Vector3Int.right };
 
     private void Awake()
     {
@@ -29,8 +32,12 @@ public class BuildingManager : MonoBehaviour
 
         if (tileData != null && tileData.Building == BuildingType.None)
         {
-            if (tileData.Ground == GroundType.Grass && tileData.Relief == ReliefType.None && (TileManager.Instance.IsRoadOrTown(cellPosition + Vector3Int.up, true) || TileManager.Instance.IsRoadOrTown(cellPosition + Vector3Int.down, true) || TileManager.Instance.IsRoadOrTown(cellPosition + Vector3Int.left, true) || TileManager.Instance.IsRoadOrTown(cellPosition + Vector3Int.right, true)))
+            // sol classique, absence de relief, presencde d'au moins une case connectée adjacente
+            if (tileData.Ground == GroundType.Grass && tileData.Relief == ReliefType.None &&
+                directions.Any(dir => TileManager.Instance.IsRoadOrTown(cellPosition + dir, true))) 
+            {
                 options.Add("road");
+            }
         }
 
         return options;
