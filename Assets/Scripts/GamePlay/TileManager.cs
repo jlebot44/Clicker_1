@@ -110,8 +110,8 @@ public class TileManager : MonoBehaviour
                 // Si la tuile est à la position (0,0,0), on la "claim" et active le lien à la capital
                 if (cellPosition == Vector3Int.zero)
                 {
-                    tileData.isClaimed = true;
-                    tileData.isConnectedToCapital = true;
+                    tileData.IsClaimed = true;
+                    tileData.IsConnectedToCapital = true;
                 }
 
                 // Ajout au dictionnaire
@@ -169,7 +169,7 @@ public class TileManager : MonoBehaviour
 
         foreach (var tile in tileDataMap.Values)
         {
-            if (tile.isClaimed && tile.Building == BuildingType.Town)
+            if (tile.IsClaimed && tile.Building == BuildingType.Town)
             {
                 claimedTowns.Add(tile);
             }
@@ -234,7 +234,7 @@ public class TileManager : MonoBehaviour
         if (!requiredIsConnectedToCapital)
             return tileData != null && (tileData.Building == BuildingType.Road || tileData.Building == BuildingType.Town);
         else
-            return tileData != null && (tileData.Building == BuildingType.Road || (tileData.Building == BuildingType.Town) && (tileData.isConnectedToCapital));
+            return tileData != null && (tileData.Building == BuildingType.Road || (tileData.Building == BuildingType.Town) && (tileData.IsConnectedToCapital));
      }
 
 
@@ -259,7 +259,7 @@ public class TileManager : MonoBehaviour
                     roadConfig |= GetBinaryMask(direction);
 
                     // Connecter uniquement les routes et les villes
-                    neighborTile.isConnectedToCapital = true;
+                    neighborTile.IsConnectedToCapital = true;
                 }
             }
         }

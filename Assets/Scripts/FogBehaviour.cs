@@ -189,7 +189,7 @@ public class FogManager : MonoBehaviour
 
         // Modifier la tuile pour la marquer comme revendiquée        
 
-        tileData.isClaimed = true;
+        tileData.IsClaimed = true;
 
 
         // Destruction de la barre de vie

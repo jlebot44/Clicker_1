@@ -9,6 +9,9 @@ public class RessourceManager : MonoBehaviour
     public static event Action<int> OnManaChanged; // Événement déclenché quand le mana change
     public static event Action<int> OnTilesChanged; // Événement déclenché quand le mana change
 
+    // Événements pour la barre de progression
+    public static event Action<float> OnProgressReset; // Événement pour réinitialiser la barre de progression à la fin du cycle
+
     [SerializeField] private int _mana = 100; // Ressource de mana
     [SerializeField] private int _manaPerLevel = 1; // Combien de mana genere par noveau de ville
     [SerializeField] private float _updateInterval = 5f; // Temps entre chaque mise à jour
@@ -63,6 +66,7 @@ public class RessourceManager : MonoBehaviour
             if (Time.timeScale > 0) // Vérifie que le jeu n'est pas en pause
             {
                 GainMana();
+                OnProgressReset?.Invoke(_updateInterval); // Envoie un message pour réinitialiser la barre de progression à la fin du cycle
             }
         }
     }

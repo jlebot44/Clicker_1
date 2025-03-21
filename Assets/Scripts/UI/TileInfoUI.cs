@@ -34,7 +34,7 @@ public class TileInfoUI : MonoBehaviour
     private void UpdateTileInfo(Vector3Int position, TileData tileData)
     {
         Debug.Log("ok");
-        if (tileData == null || !tileData.isClaimed)
+        if (tileData == null || !tileData.IsClaimed)
         {
             ShowUI(false);
             return;
@@ -44,7 +44,7 @@ public class TileInfoUI : MonoBehaviour
         _tileInfoGroundTMP.text = $"Terrain: {tileData.Ground}\n";
         _tileInfoReliefTMP.text = $"Relief: {tileData.Relief}\n";
         _tileInfoBuildingTMP.text = $"Bâtiment: {tileData.Building} (Niveau: {tileData.BuildingLevel})";
-        _tileInfoIsConnectedTMP.text = $"Liaison Capital: {tileData.isConnectedToCapital}";
+        _tileInfoIsConnectedTMP.text = $"Liaison Capital: {tileData.IsConnectedToCapital}";
 
 
         ShowUI(true);
