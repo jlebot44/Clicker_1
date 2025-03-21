@@ -20,7 +20,6 @@ public class TileInfoUI : MonoBehaviour
 
     private void Awake()
     {
-        Debug.Log("TileInfoUI Awake - Abonnement aux événements");
         TileClickHandler.OnTileSelected += UpdateTileInfo;
         BuildingManager.OnBuildingConstructed += CloseUI;
     }
@@ -33,7 +32,6 @@ public class TileInfoUI : MonoBehaviour
 
     private void UpdateTileInfo(Vector3Int position, TileData tileData)
     {
-        Debug.Log("ok");
         if (tileData == null || !tileData.IsClaimed)
         {
             ShowUI(false);
