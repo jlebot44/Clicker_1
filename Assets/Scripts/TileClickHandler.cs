@@ -37,7 +37,6 @@ public class TileClickHandler : MonoBehaviour
 
             if (selectedTileData != null)
             {
-                Debug.Log("envoi du message tuile selectionné");
                 // Émettre un événement pour dire qu'une tuile a été sélectionnée
                 OnTileSelected?.Invoke(cellPosition, selectedTileData);
             }

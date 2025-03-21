@@ -34,6 +34,8 @@ public class TileManager : MonoBehaviour
 
     private Dictionary<Vector3Int, TileData> tileDataMap = new Dictionary<Vector3Int, TileData>();
 
+    private Vector3Int[] _directions = { Vector3Int.up, Vector3Int.down, Vector3Int.left, Vector3Int.right };
+
 
 
     void Awake()
@@ -191,12 +193,6 @@ public class TileManager : MonoBehaviour
             // Sélectionner la bonne tile en fonction du type de construction
             switch (buildingType)
             {
-                //case BuildingType.Road:
-                //    tileToPlace = _roadTile;
-                //    break;
-                //case BuildingType.Town:
-                //    tileToPlace = townTile;
-                //    break;
                 //case BuildingType.Farm:
                 //    tileToPlace = farmTile;
                 //    break;
@@ -218,64 +214,74 @@ public class TileManager : MonoBehaviour
     public void PlaceRoad(Vector3Int position)
     {
         // Placer la route sur la tuile actuelle
-        UpdateTile(position);
+        UpdateTileForRoad(position);
 
         // Vérifier et mettre à jour les tuiles adjacentes si elles sont déjà des routes ou des villes
-        if (IsRoadOrTown(position + Vector3Int.left)) // Tuile gauche
-            UpdateTile(position + Vector3Int.left);
-
-        if (IsRoadOrTown(position + Vector3Int.right)) // Tuile droite
-            UpdateTile(position + Vector3Int.right);
-
-        if (IsRoadOrTown(position + Vector3Int.up)) // Tuile haut
-            UpdateTile(position + Vector3Int.up);
-
-        if (IsRoadOrTown(position + Vector3Int.down)) // Tuile bas
-            UpdateTile(position + Vector3Int.down);
+        foreach (var direction in _directions)
+        {
+            if (IsRoadOrTown(position + direction, false))
+                UpdateTileForRoad(position + direction);
+        }
     }
+
+
 
     // Méthode pour vérifier si la tuile est une route ou une ville
-    private bool IsRoadOrTown(Vector3Int position)
+    
+    public bool IsRoadOrTown(Vector3Int position, bool requiredIsConnectedToCapital)
     {
         TileData tileData = GetTileData(position);
-        return tileData != null && (tileData.Building == BuildingType.Road || tileData.Building == BuildingType.Town);
-    }
+        if (!requiredIsConnectedToCapital)
+            return tileData != null && (tileData.Building == BuildingType.Road || tileData.Building == BuildingType.Town);
+        else
+            return tileData != null && (tileData.Building == BuildingType.Road || (tileData.Building == BuildingType.Town) && (tileData.isConnectedToCapital));
+     }
+
+
 
     // Méthode pour mettre à jour la tuile (route ou autre type)
-    // Méthode pour mettre à jour la tuile (route ou autre type)
-    private void UpdateTile(Vector3Int position)
+    private void UpdateTileForRoad(Vector3Int position)
     {
-        // Récupérer les tuiles adjacentes
-        TileData tileLeft = GetTileData(position + Vector3Int.left);
-        TileData tileRight = GetTileData(position + Vector3Int.right);
-        TileData tileUp = GetTileData(position + Vector3Int.up);
-        TileData tileDown = GetTileData(position + Vector3Int.down);
-
-        // Représenter les tuiles adjacentes sous forme binaire
+        // Représentation binaire des connexions aux routes/villes
         int roadConfig = 0b0000;
 
-        // Vérifier si les tuiles adjacentes sont des routes ou des villes
-        // Ne pas remplacer les villes
-        if (tileLeft != null && (tileLeft.Building == BuildingType.Road || tileLeft.Building == BuildingType.Town))
-            roadConfig |= 0b1000; // Route ou ville à gauche
-        if (tileRight != null && (tileRight.Building == BuildingType.Road || tileRight.Building == BuildingType.Town))
-            roadConfig |= 0b0100; // Route ou ville à droite
-        if (tileUp != null && (tileUp.Building == BuildingType.Road || tileUp.Building == BuildingType.Town))
-            roadConfig |= 0b0010; // Route ou ville en haut
-        if (tileDown != null && (tileDown.Building == BuildingType.Road || tileDown.Building == BuildingType.Town))
-            roadConfig |= 0b0001; // Route ou ville en bas
-
-        // Ne pas remplacer la tuile si c'est une ville
-        if (tileDataMap.ContainsKey(position) && tileDataMap[position].Building == BuildingType.Town)
+        foreach (var direction in _directions)
         {
-            return; // Ne rien faire si la tuile est une ville
+            Vector3Int neighborPos = position + direction;
+            TileData neighborTile = GetTileData(neighborPos);
+
+            if (neighborTile != null)
+            {
+                // Vérifier si c'est une route ou une ville
+                if (neighborTile.Building == BuildingType.Road || neighborTile.Building == BuildingType.Town)
+                {
+                    // Mettre à jour la configuration binaire
+                    roadConfig |= GetBinaryMask(direction);
+
+                    // Connecter uniquement les routes et les villes
+                    neighborTile.isConnectedToCapital = true;
+                }
+            }
         }
 
-        // Trouver la tuile correspondante dans le dictionnaire
+        // Ne pas modifier une ville existante
+        if (tileDataMap.ContainsKey(position) && tileDataMap[position].Building == BuildingType.Town)
+            return;
+
+        // Trouver la bonne tuile de route
         if (roadTypeMapping.TryGetValue(roadConfig, out TileBase roadTile))
         {
-            // Placer la tuile de route dans la Tilemap
             _buildingTilemap.SetTile(position, roadTile);
         }
+    }
+
+    // Fonction pour obtenir le masque binaire d'une direction
+    private int GetBinaryMask(Vector3Int direction)
+    {
+        if (direction == Vector3Int.left) return 0b1000;
+        if (direction == Vector3Int.right) return 0b0100;
+        if (direction == Vector3Int.up) return 0b0010;
+        if (direction == Vector3Int.down) return 0b0001;
+        return 0;
     }
 }

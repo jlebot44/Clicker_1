@@ -29,7 +29,7 @@ public class BuildingManager : MonoBehaviour
 
         if (tileData != null && tileData.Building == BuildingType.None)
         {
-            if (tileData.Ground == GroundType.Grass)
+            if (tileData.Ground == GroundType.Grass && tileData.Relief == ReliefType.None && (TileManager.Instance.IsRoadOrTown(cellPosition + Vector3Int.up, true) || TileManager.Instance.IsRoadOrTown(cellPosition + Vector3Int.down, true) || TileManager.Instance.IsRoadOrTown(cellPosition + Vector3Int.left, true) || TileManager.Instance.IsRoadOrTown(cellPosition + Vector3Int.right, true)))
                 options.Add("road");
         }
 
@@ -43,8 +43,6 @@ public class BuildingManager : MonoBehaviour
 
         if (selectedTileData != null)
         {
-            Debug.Log($"Construction de {construction} sur {cellPosition}");
-
             switch (construction)
             {
                 case "road":

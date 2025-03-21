@@ -11,6 +11,7 @@ public class TileInfoUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _tileInfoGroundTMP;
     [SerializeField] private TextMeshProUGUI _tileInfoReliefTMP;
     [SerializeField] private TextMeshProUGUI _tileInfoBuildingTMP;
+    [SerializeField] private TextMeshProUGUI _tileInfoIsConnectedTMP;
 
     [SerializeField] private GameObject _buildingPanel;
     [SerializeField] private Button _buildingButtonPrefab;
@@ -42,6 +43,8 @@ public class TileInfoUI : MonoBehaviour
         _tileInfoGroundTMP.text = $"Terrain: {tileData.Ground}\n";
         _tileInfoReliefTMP.text = $"Relief: {tileData.Relief}\n";
         _tileInfoBuildingTMP.text = $"Bâtiment: {tileData.Building} (Niveau: {tileData.BuildingLevel})";
+        _tileInfoIsConnectedTMP.text = $"Liaison Capital: {tileData.isConnectedToCapital}";
+
 
         ShowUI(true);
         UpdateConstructionOptions(position);
