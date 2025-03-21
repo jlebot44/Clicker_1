@@ -10,7 +10,7 @@ public class FogManager : MonoBehaviour
     [SerializeField] private Tilemap _fogTilemap; // Tilemap du brouillard
     [SerializeField] private Camera _mainCamera; // Caméra principale
     [SerializeField] private int _fogDirectionRadius = 1; // rayon de visibilité du brouillard - 1 par defaut
-    [SerializeField] private GameObject _healthBarPrefab; // Prefab de la barre de vie des tuiles brouillard
+    [SerializeField] private HealthBarPoolManager _healthBarPoolManager;  // Référence au Pool Manager
     [SerializeField] private GameObject _vfxNewTile; // VFX de revelation d'une tuile
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private AudioClip _sfxNewTile;
@@ -155,8 +155,11 @@ public class FogManager : MonoBehaviour
     {
         if (healthBars.ContainsKey(cellPosition))
         {
-            Destroy(healthBars[cellPosition]);
+            GameObject healthBar = healthBars[cellPosition];
             healthBars.Remove(cellPosition);
+
+            // Rendre la barre au pool au lieu de la détruire
+            _healthBarPoolManager.ReturnHealthBar(healthBar);
         }
     }
 
@@ -165,8 +168,7 @@ public class FogManager : MonoBehaviour
         if (!healthBars.ContainsKey(cellPosition)) // Vérifie si une barre existe déjà
         {
             Vector3 worldPosition = _fogTilemap.GetCellCenterWorld(cellPosition);
-            GameObject healthBar = Instantiate(_healthBarPrefab, worldPosition, Quaternion.identity);
-            healthBar.name = $"healthBar_{cellPosition.x}_{cellPosition.y}";
+            GameObject healthBar = _healthBarPoolManager.GetHealthBar(worldPosition);
             healthBars[cellPosition] = healthBar;
         }
     }
