@@ -21,7 +21,10 @@ public class FogManager : MonoBehaviour
 
     Dictionary<Vector3Int, GameObject> healthBars = new Dictionary<Vector3Int, GameObject>();
 
-
+    private void OnEnable()
+    {
+        TileClickHandler.OnTileSelected += HandleTileSelected;
+    }
 
 
     void Start()
@@ -32,31 +35,24 @@ public class FogManager : MonoBehaviour
         }
     }
 
-    void Update()
+    private void HandleTileSelected(Vector3Int cellPosition, TileData tileData)
     {
-        if (Input.GetMouseButtonDown(0)) // Clic gauche pour dissiper le brouillard
+        if (tileData != null && tileData.CurrentFog > 0) // Clic gauche pour dissiper le brouillard
         {
             if (RessourceManager.Instance.Mana < clickPower)
             {
                 print("Mana inssuffisant");
                 return;
             }
-
-            Vector3 worldPoint = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            Vector3Int cellPosition = _fogTilemap.WorldToCell(worldPoint);
-            TileData tileData = TileManager.Instance.GetTileData(cellPosition);
-
-            if (tileData != null && tileData.CurrentFog > 0)
-            {                
-                if (IsAdjacentToClearedTile(cellPosition))
-                {
-                    ProcessFogClick(cellPosition, tileData);
-                }
-                else
-                {
-                    print("la case doit être adjacente a une case révélée");
-                }
+            
+            if (IsAdjacentToClearedTile(cellPosition))
+            {
+                ProcessFogClick(cellPosition, tileData);
             }
+            else
+            {
+                print("la case doit être adjacente a une case révélée");
+            }            
         }
     }
 
@@ -129,8 +125,6 @@ public class FogManager : MonoBehaviour
 
                 // Remplacer la tuile dans la Tilemap
                 _fogTilemap.SetTile(neighborPos, modifiableTile);
-
-
             }
         }
 

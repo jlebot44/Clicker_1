@@ -32,8 +32,11 @@ public class TileInfoUI : MonoBehaviour
 
     private void UpdateTileInfo(Vector3Int position, TileData tileData)
     {
-        Debug.Log($"UpdateTileInfo appelé pour la tuile {position}");
-        if (tileData == null) return;
+        if (tileData == null || !tileData.isClaimed)
+        {
+            ShowUI(false);
+            return;
+        }
 
         _tileInfoPositionTMP.text = $"Position: {position}\n";
         _tileInfoGroundTMP.text = $"Terrain: {tileData.Ground}\n";
