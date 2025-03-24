@@ -567,9 +567,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1899759760}
-        m_TargetAssemblyTypeName: SaveManager, Assembly-CSharp
-        m_MethodName: Load
+      - m_Target: {fileID: 1899759761}
+        m_TargetAssemblyTypeName: SaveLoadManager, Assembly-CSharp
+        m_MethodName: LoadClaimedTiles
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3628,9 +3628,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1899759760}
-        m_TargetAssemblyTypeName: SaveManager, Assembly-CSharp
-        m_MethodName: Save
+      - m_Target: {fileID: 1899759761}
+        m_TargetAssemblyTypeName: SaveLoadManager, Assembly-CSharp
+        m_MethodName: SaveClaimedTiles
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3835,7 +3835,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &652431871
 RectTransform:
   m_ObjectHideFlags: 0
@@ -35548,7 +35548,7 @@ GameObject:
   - component: {fileID: 1899759757}
   - component: {fileID: 1899759756}
   - component: {fileID: 1899759759}
-  - component: {fileID: 1899759760}
+  - component: {fileID: 1899759761}
   m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
@@ -35656,7 +35656,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _pausePanel: {fileID: 652431870}
   _isPaused: 0
---- !u!114 &1899759760
+--- !u!114 &1899759761
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -35665,7 +35665,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1899759754}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9fa9917104e08f543b89fc027e342075, type: 3}
+  m_Script: {fileID: 11500000, guid: 18efb1a1d49241e459e7495fe25f7bf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1906381181

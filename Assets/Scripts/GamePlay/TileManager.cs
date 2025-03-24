@@ -289,9 +289,4 @@ public class TileManager : MonoBehaviour
         return 0;
     }
 
-
-    // Méthode pour sauvegarder les tuiles
-
-
-
 }
