@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -26,13 +27,16 @@ public class TileManager : MonoBehaviour
     [SerializeField] private TileBase _intersectionRoadTile;
     private Dictionary<int, TileBase> roadTypeMapping;
 
+    private Dictionary<Vector3Int, TileData> tileDataMap = new Dictionary<Vector3Int, TileData>();
+
 
     public Tilemap GroundTilemap { get => _groundTilemap; set => _groundTilemap = value; }
     public Tilemap ReliefTilemap { get => _reliefTilemap; set => _reliefTilemap = value; } 
     public Tilemap BuildingTilemap { get => _buildingTilemap; set => _buildingTilemap = value; }
     public Tilemap FogTilemap { get => _fogTilemap; set => _fogTilemap = value; }
+    public Dictionary<Vector3Int, TileData> TileDataMap { get => tileDataMap; set => tileDataMap = value; }
 
-    private Dictionary<Vector3Int, TileData> tileDataMap = new Dictionary<Vector3Int, TileData>();
+
 
     private Vector3Int[] _directions = { Vector3Int.up, Vector3Int.down, Vector3Int.left, Vector3Int.right };
 
@@ -115,14 +119,14 @@ public class TileManager : MonoBehaviour
                 }
 
                 // Ajout au dictionnaire
-                tileDataMap[cellPosition] = tileData;
+                TileDataMap[cellPosition] = tileData;
             }
         }
     }
 
     public TileData GetTileData(Vector3Int cellPosition)
     {
-        return tileDataMap.ContainsKey(cellPosition) ? tileDataMap[cellPosition] : null;
+        return TileDataMap.ContainsKey(cellPosition) ? TileDataMap[cellPosition] : null;
     }
 
     private BuildingType ClassifyBuildingType(string tileName)
@@ -167,7 +171,7 @@ public class TileManager : MonoBehaviour
     {
         List<TileData> claimedTowns = new List<TileData>();
 
-        foreach (var tile in tileDataMap.Values)
+        foreach (var tile in TileDataMap.Values)
         {
             if (tile.IsClaimed && tile.Building == BuildingType.Town)
             {
@@ -265,7 +269,7 @@ public class TileManager : MonoBehaviour
         }
 
         // Ne pas modifier une ville existante
-        if (tileDataMap.ContainsKey(position) && tileDataMap[position].Building == BuildingType.Town)
+        if (TileDataMap.ContainsKey(position) && TileDataMap[position].Building == BuildingType.Town)
             return;
 
         // Trouver la bonne tuile de route
@@ -284,4 +288,10 @@ public class TileManager : MonoBehaviour
         if (direction == Vector3Int.down) return 0b0001;
         return 0;
     }
+
+
+    // Méthode pour sauvegarder les tuiles
+
+
+
 }
