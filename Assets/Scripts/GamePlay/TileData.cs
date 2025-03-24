@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[System.Serializable]
 public class TileData
 {
     [SerializeField] private GroundType _ground;

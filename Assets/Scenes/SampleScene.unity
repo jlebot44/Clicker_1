@@ -35668,6 +35668,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18efb1a1d49241e459e7495fe25f7bf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _fogTilemap: {fileID: 1113809738}
+  _reliefTilemap: {fileID: 604529021}
+  _buildingTilemap: {fileID: 133455826}
 --- !u!1 &1906381181
 GameObject:
   m_ObjectHideFlags: 0

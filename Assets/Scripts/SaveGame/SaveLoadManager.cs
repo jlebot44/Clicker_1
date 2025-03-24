@@ -1,12 +1,15 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class SaveLoadManager : MonoBehaviour
 {
-
     private Dictionary<Vector3Int, TileData> _tileDataMap;
 
+    [SerializeField] private Tilemap _fogTilemap;
+    [SerializeField] private Tilemap _reliefTilemap;
+    [SerializeField] private Tilemap _buildingTilemap;
 
     private void Start()
     {
@@ -23,7 +26,14 @@ public class SaveLoadManager : MonoBehaviour
             TileData tileData = kvp.Value;
             if (tileData.IsClaimed)
             {
-                SavedTileData savedTile = new SavedTileData(kvp.Key, tileData);
+                Vector3Int position = kvp.Key;
+
+                // Récupérer les tuiles de chaque Tilemap
+                TileBase reliefTile = _reliefTilemap.GetTile(position);
+                TileBase buildingTile = _buildingTilemap.GetTile(position);
+
+                // Sauvegarder les données nécessaires
+                SavedTileData savedTile = new SavedTileData(position, tileData, reliefTile, buildingTile);
                 savedTiles.Add(savedTile);
             }
         }
@@ -38,23 +48,10 @@ public class SaveLoadManager : MonoBehaviour
         Debug.Log("Sauvegarde des tuiles réussie : " + filePath);
     }
 
-    // Classe de conteneur pour sérialiser les tuiles sauvegardées
-    [System.Serializable]
-    public class TileSaveData
-    {
-        public List<SavedTileData> tiles;
-
-        public TileSaveData(List<SavedTileData> tiles)
-        {
-            this.tiles = tiles;
-        }
-    }
-
     public void LoadClaimedTiles()
     {
         string filePath = Path.Combine(Application.persistentDataPath, "tile_save.json");
 
-        // Vérifier si le fichier existe
         if (File.Exists(filePath))
         {
             // Lire le contenu du fichier
@@ -63,25 +60,26 @@ public class SaveLoadManager : MonoBehaviour
             // Désérialiser le JSON en un objet TileSaveData
             TileSaveData savedData = JsonUtility.FromJson<TileSaveData>(json);
 
-            // Parcourir les tuiles sauvegardées et rétablir leur état
             foreach (SavedTileData savedTile in savedData.tiles)
             {
                 Vector3Int position = savedTile.position;
+                _fogTilemap.SetTile(position, null);
+
                 if (_tileDataMap.ContainsKey(position))
                 {
                     TileData tileData = _tileDataMap[position];
+                    //tileData = savedTile.tileData;
                     tileData.IsClaimed = true;
-                    tileData.Ground = savedTile.ground;
-                    tileData.Relief = savedTile.relief;
-                    tileData.Building = savedTile.building;
-                    tileData.BuildingLevel = savedTile.buildingLevel;
-                    tileData.InitialFog = savedTile.initialFog;
-                    tileData.CurrentFog = savedTile.currentFog;
-                    tileData.IsConnectedToCapital = savedTile.isConnectedToCapital; 
+                    tileData.Ground = savedTile.tileData.Ground;
+                    tileData.Relief = savedTile.tileData.Relief;
+                    tileData.Building = savedTile.tileData.Building;
+                    tileData.BuildingLevel = savedTile.tileData.BuildingLevel;
+                    tileData.InitialFog = savedTile.tileData.InitialFog;
+                    tileData.CurrentFog = savedTile.tileData.CurrentFog;
+                    tileData.IsConnectedToCapital = savedTile.tileData.IsConnectedToCapital;
 
                     // Restaurer la tuile sur la tilemap
-                    // (Optionnel) Tu peux ici aussi restaurer visuellement la tuile sur la Tilemap, si nécessaire.
-                    //UpdateTileOnMap(position, tileData);
+                    UpdateTileOnMap(position, savedTile.relief, savedTile.building);
                 }
             }
 
@@ -93,4 +91,20 @@ public class SaveLoadManager : MonoBehaviour
         }
     }
 
+    private void UpdateTileOnMap(Vector3Int position, TileBase reliefTile, TileBase buildingTile)
+    {
+        // Restaurer la tuile de chaque Tilemap
+        if (reliefTile != null)
+            _reliefTilemap.SetTile(position, reliefTile);
+
+        if (buildingTile != null)
+            _buildingTilemap.SetTile(position, buildingTile);
+
+
+    }
+
+
 }
+
+
+

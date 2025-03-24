@@ -1,26 +1,34 @@
+using UnityEngine.Tilemaps;
 using UnityEngine;
+using System.Collections.Generic;
 
+// Classe de conteneur pour sérialiser les tuiles sauvegardées
+[System.Serializable]
+public class TileSaveData
+{
+    public List<SavedTileData> tiles;
+
+    public TileSaveData(List<SavedTileData> tiles)
+    {
+        this.tiles = tiles;
+    }
+}
+
+// Classe de données pour chaque tuile sauvegardée
 [System.Serializable]
 public class SavedTileData
 {
     public Vector3Int position;
-    public GroundType ground;
-    public ReliefType relief;
-    public BuildingType building;
-    public int buildingLevel;
-    public int initialFog;
-    public int currentFog;
-    public bool isConnectedToCapital;
+    public TileData tileData;
+    public TileBase relief;
+    public TileBase building;
+    
 
-    public SavedTileData(Vector3Int pos, TileData tileData)
+    public SavedTileData(Vector3Int position, TileData tileData, TileBase building, TileBase relief)
     {
-        position = pos;
-        ground = tileData.Ground;
-        relief = tileData.Relief;
-        building = tileData.Building;
-        buildingLevel = tileData.BuildingLevel;
-        initialFog = tileData.InitialFog;
-        currentFog = tileData.CurrentFog;
-        isConnectedToCapital = tileData.IsConnectedToCapital;
+        this.position = position;
+        this.tileData = tileData;
+        this.building = building;
+        this.relief = relief;
     }
 }
