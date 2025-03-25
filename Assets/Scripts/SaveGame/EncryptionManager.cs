@@ -7,9 +7,9 @@ using UnityEngine;
 public class EncryptionManager
 {
     // |--------------------------------|
-    // |--- Securisation des données ---|
+    // |--- Securisation des donnees ---|
     // |--------------------------------|
-    private string Encrypt(string input)
+    public string Encrypt(string input)
     {
         return Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes(input)));
     }
@@ -27,7 +27,7 @@ public class EncryptionManager
         return ms.ToArray();
     }
 
-    private string Decrypt(string input)
+    public string Decrypt(string input)
     {
         return Encoding.UTF8.GetString(Decrypt(Convert.FromBase64String(input)));
     }

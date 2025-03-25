@@ -5,9 +5,11 @@ public class PauseGame : MonoBehaviour
     [SerializeField] private GameObject _pausePanel;
     [SerializeField] private bool _isPaused;
 
+    public bool IsPaused { get => _isPaused; set => _isPaused = value; }
+
     private void Start()
     {
-        _isPaused = false;
+        IsPaused = false;
     }
 
 
@@ -15,10 +17,10 @@ public class PauseGame : MonoBehaviour
     {
         if (Input.GetKeyUp(KeyCode.Escape))
         {
-            _isPaused = !_isPaused;
-            _pausePanel.SetActive(_isPaused);
-            Time.timeScale = _isPaused ? 0.0f : 1.0f;
+            IsPaused = !IsPaused;
         }
-        
+        _pausePanel.SetActive(IsPaused);
+        Time.timeScale = IsPaused ? 0.0f : 1.0f;
+
     }
 }

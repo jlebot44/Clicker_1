@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -7,14 +8,44 @@ public class SaveLoadManager : MonoBehaviour
 {
     private Dictionary<Vector3Int, TileData> _tileDataMap;
 
+    [SerializeField] private EncryptionManager _encryptionManager;
+
     [SerializeField] private Tilemap _fogTilemap;
     [SerializeField] private Tilemap _reliefTilemap;
     [SerializeField] private Tilemap _buildingTilemap;
 
+    // pour relancer le jeu
+    private PauseGame pauseGame;
+
+
+
     private void Start()
     {
         _tileDataMap = TileManager.Instance.TileDataMap;
+        pauseGame = GetComponent<PauseGame>();
+        _encryptionManager = new EncryptionManager();        
+
     }
+
+
+    public void Save()
+    {
+        SaveClaimedTiles();
+        SaveResources();
+
+        //relancer le jeu après la sauvegarde
+        pauseGame.IsPaused = !pauseGame.IsPaused;
+    }
+
+    public void Load()
+    {
+        LoadClaimedTiles();
+        LoadResources();
+
+        //relancer le jeu après le chargement
+        pauseGame.IsPaused = !pauseGame.IsPaused;
+    }
+
 
     public void SaveClaimedTiles()
     {
@@ -41,9 +72,12 @@ public class SaveLoadManager : MonoBehaviour
         // Convertir en JSON
         string json = JsonUtility.ToJson(new TileSaveData(savedTiles), true);
 
+        // Cryptage de la chaine de caractère
+        string cryptedJson = _encryptionManager.Encrypt(json);
+
         // Sauvegarder dans un fichier
         string filePath = Path.Combine(Application.persistentDataPath, "tile_save.json");
-        File.WriteAllText(filePath, json);
+        File.WriteAllText(filePath, cryptedJson);
 
         Debug.Log("Sauvegarde des tuiles réussie : " + filePath);
     }
@@ -55,7 +89,10 @@ public class SaveLoadManager : MonoBehaviour
         if (File.Exists(filePath))
         {
             // Lire le contenu du fichier
-            string json = File.ReadAllText(filePath);
+            string CryptedJson = File.ReadAllText(filePath);
+
+            // decryptage du fichier
+            string json = _encryptionManager.Decrypt(CryptedJson);
 
             // Désérialiser le JSON en un objet TileSaveData
             TileSaveData savedData = JsonUtility.FromJson<TileSaveData>(json);
@@ -102,6 +139,40 @@ public class SaveLoadManager : MonoBehaviour
 
 
     }
+
+    private void SaveResources()
+    {
+        RessourceManager ressourceManager = RessourceManager.Instance;
+        SaveRessourceData SaveRessourceData = new SaveRessourceData(ressourceManager.Mana, ressourceManager.ManaPerLevel, ressourceManager.UpdateInterval, ressourceManager.Tiles);
+        string json = JsonUtility.ToJson(SaveRessourceData, true);
+        string cryptedJson = _encryptionManager.Encrypt(json);
+        string filePath = Path.Combine(Application.persistentDataPath, "resources.json");
+        File.WriteAllText(filePath, cryptedJson);
+        Debug.Log("Ressources sauvegardées : " + filePath);
+    }
+
+    private void LoadResources()
+    {
+        string filePath = Path.Combine(Application.persistentDataPath, "resources.json");
+        if (File.Exists(filePath))
+        {
+            string cryptedJson = File.ReadAllText(filePath);
+            string json = _encryptionManager.Decrypt(cryptedJson);  
+            SaveRessourceData SaveRessourceData = JsonUtility.FromJson<SaveRessourceData>(json);
+            RessourceManager ressourceManager = RessourceManager.Instance;
+            ressourceManager.Mana = SaveRessourceData.mana;
+            ressourceManager.ManaPerLevel = SaveRessourceData.manaPerLevel;
+            ressourceManager.UpdateInterval = SaveRessourceData.updateInterval;
+            ressourceManager.Tiles = SaveRessourceData.tiles;
+
+            Debug.Log("Ressources chargées");
+        }
+        else
+        {
+            Debug.LogWarning("Aucune sauvegarde de ressources trouvée !");
+        }
+    }
+
 
 
 }
