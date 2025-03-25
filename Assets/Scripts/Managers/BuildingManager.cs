@@ -60,6 +60,9 @@ public class BuildingManager : MonoBehaviour
             // Placer la construction sur la Tilemap
             TileManager.Instance.PlaceBuildingTile(cellPosition, selectedTileData.Building);
 
+            // Décrémenter le nombre de tuile generatrice de mana
+            RessourceManager.Instance.ManaGen--;
+
             OnBuildingConstructed?.Invoke(cellPosition, selectedTileData);
         }
     }

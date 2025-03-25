@@ -161,7 +161,7 @@ public class SaveLoadManager : MonoBehaviour
     private void SaveResources()
     {
         RessourceManager ressourceManager = RessourceManager.Instance;
-        SaveRessourceData SaveRessourceData = new SaveRessourceData(ressourceManager.Mana, ressourceManager.ManaPerLevel, ressourceManager.UpdateInterval, ressourceManager.Tiles);
+        SaveRessourceData SaveRessourceData = new SaveRessourceData(ressourceManager.Mana, ressourceManager.UpdateInterval, ressourceManager.Tiles);
         string json = JsonUtility.ToJson(SaveRessourceData, true);
         string cryptedJson = _encryptionManager.Encrypt(json);
         string filePath = Path.Combine(Application.persistentDataPath, "resources.json");
@@ -179,7 +179,6 @@ public class SaveLoadManager : MonoBehaviour
             SaveRessourceData SaveRessourceData = JsonUtility.FromJson<SaveRessourceData>(json);
             RessourceManager ressourceManager = RessourceManager.Instance;
             ressourceManager.Mana = SaveRessourceData.mana;
-            ressourceManager.ManaPerLevel = SaveRessourceData.manaPerLevel;
             ressourceManager.UpdateInterval = SaveRessourceData.updateInterval;
             ressourceManager.Tiles = SaveRessourceData.tiles;
 
