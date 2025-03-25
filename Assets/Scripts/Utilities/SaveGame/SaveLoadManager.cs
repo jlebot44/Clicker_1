@@ -8,7 +8,7 @@ public class SaveLoadManager : MonoBehaviour
 {
     private Dictionary<Vector3Int, TileData> _tileDataMap;
 
-    [SerializeField] private EncryptionManager _encryptionManager;
+    private EncryptionManager _encryptionManager;
 
     [SerializeField] private Tilemap _fogTilemap;
     [SerializeField] private Tilemap _reliefTilemap;
@@ -34,7 +34,10 @@ public class SaveLoadManager : MonoBehaviour
         SaveResources();
 
         //relancer le jeu après la sauvegarde
-        pauseGame.IsPaused = !pauseGame.IsPaused;
+        if (pauseGame != null)
+        {
+            pauseGame.IsPaused = !pauseGame.IsPaused;
+        }
     }
 
     public void Load()
@@ -89,13 +92,28 @@ public class SaveLoadManager : MonoBehaviour
         if (File.Exists(filePath))
         {
             // Lire le contenu du fichier
-            string CryptedJson = File.ReadAllText(filePath);
+            string cryptedJson = File.ReadAllText(filePath);
 
             // decryptage du fichier
-            string json = _encryptionManager.Decrypt(CryptedJson);
+            string json = _encryptionManager.Decrypt(cryptedJson);
 
             // Désérialiser le JSON en un objet TileSaveData
-            TileSaveData savedData = JsonUtility.FromJson<TileSaveData>(json);
+            TileSaveData savedData = null;
+            try
+            {
+                savedData = JsonUtility.FromJson<TileSaveData>(json);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("Erreur lors du chargement du fichier JSON : " + ex.Message);
+                return;
+            }
+
+            if (savedData == null || savedData.tiles == null)
+            {
+                Debug.LogWarning("Aucune tuile enregistrée trouvée dans le fichier de sauvegarde.");
+                return;
+            }
 
             foreach (SavedTileData savedTile in savedData.tiles)
             {
