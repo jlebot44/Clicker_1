@@ -33,7 +33,8 @@ public class BuildingManager : MonoBehaviour
         if (tileData != null && tileData.Building == BuildingType.None)
         {
             // sol classique, absence de relief, presencde d'au moins une case connectée adjacente
-            if (tileData.Ground == GroundType.Grass && tileData.Relief == ReliefType.None &&
+            if (tileData.Ground == GroundType.Grass && 
+                tileData.Relief == ReliefType.None &&
                 directions.Any(dir => TileManager.Instance.IsRoadOrTown(cellPosition + dir, true))) 
             {
                 options.Add("road");
