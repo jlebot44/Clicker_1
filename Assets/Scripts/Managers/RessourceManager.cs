@@ -103,6 +103,10 @@ public class RessourceManager : MonoBehaviour
         }
     }
 
+    public int GoldPerTurn { get => _goldPerTurn; set => _goldPerTurn = value; }
+    public int WoodPerTurn { get => _woodPerTurn; set => _woodPerTurn = value; }
+    public int StonePerTurn { get => _stonePerTurn; set => _stonePerTurn = value; }
+
     void Awake()
     {
         if (Instance == null)
@@ -147,18 +151,18 @@ public class RessourceManager : MonoBehaviour
     // Fonction récurrente d'or de mana par cycle
     void GainGold()
     {
-        Gold += _goldPerTurn;
+        Gold += GoldPerTurn;
     }
     // Fonction récurrente du gain de bois par cycle
     void GainWood()
     {
-        Wood += _woodPerTurn;
+        Wood += WoodPerTurn;
     }
 
     // Fonction récurrente du gain de pierre par cycle
     void GainStone()
     {
-        Stone += _stonePerTurn;
+        Stone += StonePerTurn;
     }
 
 

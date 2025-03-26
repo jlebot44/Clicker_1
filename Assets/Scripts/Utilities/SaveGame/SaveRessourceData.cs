@@ -1,16 +1,29 @@
 [System.Serializable]
 public class SaveRessourceData
 {
+    public int Mana;
+    public int ManaGen;
+    public int Gold;
+    public int GoldPerTurn;
+    public int Wood;
+    public int WoodPerTurn;
+    public int Stone;
+    public int StonePerTurn;
+    public float UpdateInterval;
+    public int Tiles;
 
-    public int mana;
-    public float updateInterval;
-    public int tiles;
-
-
-    public SaveRessourceData(int mana, float updateInterval, int tiles)
+    // Constructeur
+    public SaveRessourceData(int mana, int manaGen, int gold, int goldPerTurn, int wood, int woodPerTurn, int stone, int stonePerTurn, float updateInterval, int tiles)
     {
-        this.mana = mana;
-        this.updateInterval = updateInterval;
-        this.tiles = tiles;
+        Mana = mana;
+        ManaGen = manaGen;
+        Gold = gold;
+        GoldPerTurn = goldPerTurn;
+        Wood = wood;
+        WoodPerTurn = woodPerTurn;
+        Stone = stone;
+        StonePerTurn = stonePerTurn;
+        UpdateInterval = updateInterval;
+        Tiles = tiles;
     }
 }
