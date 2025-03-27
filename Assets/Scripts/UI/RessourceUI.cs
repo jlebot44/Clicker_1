@@ -18,7 +18,7 @@ public class RessourceUI : MonoBehaviour
         RessourceManager.OnGoldChanged += UpdateGoldDisplay;
         RessourceManager.OnWoodChanged += UpdateWoodDisplay;
         RessourceManager.OnStoneChanged += UpdateStoneDisplay;
-        RessourceManager.OnManaGenChanged += UpdateManaGenDisplay;
+        //RessourceManager.OnManaGenChanged += UpdateManaGenDisplay;
     }
 
     private void OnDisable()
@@ -29,7 +29,7 @@ public class RessourceUI : MonoBehaviour
         RessourceManager.OnGoldChanged -= UpdateGoldDisplay;
         RessourceManager.OnWoodChanged -= UpdateWoodDisplay;
         RessourceManager.OnStoneChanged -= UpdateStoneDisplay;
-        RessourceManager.OnManaGenChanged -= UpdateManaGenDisplay;
+        //RessourceManager.OnManaGenChanged -= UpdateManaGenDisplay;
     }
 
     private void UpdateManaDisplay(int newMana)
@@ -58,8 +58,8 @@ public class RessourceUI : MonoBehaviour
         stoneText.text = newStone.ToString(); // Met à jour l'affichage du nombre de tuiles révélées
     }
 
-    private void UpdateManaGenDisplay(int newManaGen)
-    {
-        manaGenText.text = newManaGen.ToString(); // Met à jour l'affichage du nombre de tuiles révélées
-    }
+    //private void UpdateManaGenDisplay(int newManaGen)
+    //{
+    //    manaGenText.text = newManaGen.ToString(); // Met à jour l'affichage du nombre de tuiles révélées
+    //}
 }

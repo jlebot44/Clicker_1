@@ -15,7 +15,6 @@ public class TileData
     public bool IsClaimed { get => _isClaimed; set => _isClaimed = value; }
     public bool IsConnectedToCapital { get => _isConnectedToCapital; set => _isConnectedToCapital = value; }
     public BuildingType Building { get => _building; set => _building = value; }
-    public int BuildingLevel { get => _buildingLevel; set => _buildingLevel = value; }
     public GroundType Ground { get => _ground; set => _ground = value; }
     public ReliefType Relief { get => _relief; set => _relief = value; }
     public int InitialFog { get => _initialFog; set => _initialFog = value; }
@@ -28,8 +27,6 @@ public class TileData
         Building = building;
         InitialFog = fog;
         CurrentFog = fog;
-        // Si c'est une ville, on commence au niveau 1
-        BuildingLevel = (building == BuildingType.Town) ? 1 : 0;
         IsClaimed = false;
         IsConnectedToCapital = false;
 

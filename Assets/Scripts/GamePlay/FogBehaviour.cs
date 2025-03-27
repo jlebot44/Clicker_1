@@ -192,6 +192,13 @@ public class FogManager : MonoBehaviour
         // Modifier la tuile pour la marquer comme revendiquée
         tileData.IsClaimed = true;
 
+        // Si batiment fixe : l'ajouter au dictionnaire
+        if (tileData.Building != BuildingType.None)
+        {
+            BuildingManager.Instance.AddBuilding(cellPosition, tileData.Building);
+        }
+            
+
 
         // Destruction de la barre de vie
         DestroyHealthBar(cellPosition);
