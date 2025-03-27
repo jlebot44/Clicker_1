@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class RessourceManager : MonoBehaviour
 {
@@ -38,8 +39,6 @@ public class RessourceManager : MonoBehaviour
     [SerializeField] private float _updateInterval = 5f; // Temps entre chaque mise à jour
 
     private int _tiles = 1;
-
-
 
     public int Mana
     { 
@@ -106,6 +105,28 @@ public class RessourceManager : MonoBehaviour
     public int GoldPerTurn { get => _goldPerTurn; set => _goldPerTurn = value; }
     public int WoodPerTurn { get => _woodPerTurn; set => _woodPerTurn = value; }
     public int StonePerTurn { get => _stonePerTurn; set => _stonePerTurn = value; }
+
+
+    private void OnEnable()
+    {
+        BuildingManager.OnBuildingConstructed += IncrementGenRessource;
+    }
+
+    private void IncrementGenRessource(Vector3Int @int, TileData tileData)
+    {
+
+        switch (tileData.Building)
+        {
+            case BuildingType.Lumberjack:
+                _woodPerTurn++;
+                break;
+            case BuildingType.Temple:
+                ManaGen++;
+                break;
+            default:
+                break;
+        }
+    }
 
     void Awake()
     {

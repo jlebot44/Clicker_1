@@ -27,6 +27,11 @@ public class TileManager : MonoBehaviour
     [SerializeField] private TileBase _intersectionRoadTile;
     private Dictionary<int, TileBase> roadTypeMapping;
 
+    // building
+    [SerializeField] private TileBase _lumberjack;
+    [SerializeField] private TileBase _temple;
+    [SerializeField] private TileBase _stoneMine;
+
     private Dictionary<Vector3Int, TileData> tileDataMap = new Dictionary<Vector3Int, TileData>();
 
 
@@ -129,6 +134,8 @@ public class TileManager : MonoBehaviour
         return TileDataMap.ContainsKey(cellPosition) ? TileDataMap[cellPosition] : null;
     }
 
+    
+
     private BuildingType ClassifyBuildingType(string tileName)
     {
         if (string.IsNullOrEmpty(tileName))
@@ -167,19 +174,19 @@ public class TileManager : MonoBehaviour
         return GroundType.Other; // Si le nom ne correspond à rien
     }
 
-    public List<TileData> GetClaimedTowns()
-    {
-        List<TileData> claimedTowns = new List<TileData>();
+    //public List<TileData> GetClaimedTowns()
+    //{
+    //    List<TileData> claimedTowns = new List<TileData>();
 
-        foreach (var tile in TileDataMap.Values)
-        {
-            if (tile.IsClaimed && tile.Building == BuildingType.Town)
-            {
-                claimedTowns.Add(tile);
-            }
-        }
-        return claimedTowns;
-    }
+    //    foreach (var tile in TileDataMap.Values)
+    //    {
+    //        if (tile.IsClaimed && tile.Building == BuildingType.Town)
+    //        {
+    //            claimedTowns.Add(tile);
+    //        }
+    //    }
+    //    return claimedTowns;
+    //}
 
 
     // Méthode pour placer une tile sur la Tilemap
@@ -197,9 +204,15 @@ public class TileManager : MonoBehaviour
             // Sélectionner la bonne tile en fonction du type de construction
             switch (buildingType)
             {
-                //case BuildingType.Farm:
-                //    tileToPlace = farmTile;
-                //    break;
+                case BuildingType.Lumberjack:
+                    tileToPlace = _lumberjack;
+                    break;
+                case BuildingType.Temple:
+                    tileToPlace = _temple;
+                    break;
+                case BuildingType.StoneMine:
+                    tileToPlace = _stoneMine;
+                    break;
                 // Ajoute d'autres cas pour d'autres types de bâtiments
                 default:
                     Debug.LogWarning("Building type not found!");
@@ -228,18 +241,38 @@ public class TileManager : MonoBehaviour
         }
     }
 
-
-
     // Méthode pour vérifier si la tuile est une route ou une ville
     
     public bool IsRoadOrTown(Vector3Int position, bool requiredIsConnectedToCapital)
     {
         TileData tileData = GetTileData(position);
         if (!requiredIsConnectedToCapital)
-            return tileData != null && (tileData.Building == BuildingType.Road || tileData.Building == BuildingType.Town);
+            return tileData != null && (tileData.Building == BuildingType.Road || tileData.Building == BuildingType.Town) && tileData.IsClaimed;
         else
-            return tileData != null && (tileData.Building == BuildingType.Road || (tileData.Building == BuildingType.Town) && (tileData.IsConnectedToCapital));
+            return tileData != null && (tileData.Building == BuildingType.Road || tileData.Building == BuildingType.Town) && (tileData.IsConnectedToCapital) && tileData.IsClaimed;
      }
+
+    public bool isTargetReliefOnTile(Vector3Int position, ReliefType relief)
+    {
+        TileData tileData = GetTileData(position);
+        return (tileData != null) && (tileData.Relief == relief) && tileData.IsClaimed;
+    }
+
+    public bool isTargetBuildingOnTile(Vector3Int position, BuildingType building)
+    {
+        TileData tileData = GetTileData(position);
+        return (tileData != null) && (tileData.Building == building) && tileData.IsClaimed;
+    }
+
+    public bool isTargetGroundOnTile(Vector3Int position, GroundType ground)
+    {
+        TileData tileData = GetTileData(position);
+        return (tileData != null) && (tileData.Ground == ground) && tileData.IsClaimed;
+    }
+
+
+
+
 
 
 
@@ -257,7 +290,7 @@ public class TileManager : MonoBehaviour
             if (neighborTile != null)
             {
                 // Vérifier si c'est une route ou une ville
-                if (neighborTile.Building == BuildingType.Road || neighborTile.Building == BuildingType.Town)
+                if ((neighborTile.Building == BuildingType.Road || neighborTile.Building == BuildingType.Town))
                 {
                     // Mettre à jour la configuration binaire
                     roadConfig |= GetBinaryMask(direction);

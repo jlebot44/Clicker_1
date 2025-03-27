@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO.IsolatedStorage;
 using System.Linq;
 using UnityEngine;
 
@@ -28,17 +29,28 @@ public class BuildingManager : MonoBehaviour
     public List<string> GetAvailableConstructions(Vector3Int cellPosition)
     {
         List<string> options = new List<string>();
-        TileData tileData = TileManager.Instance.GetTileData(cellPosition);
+        
+        
+        // Pré-calcul des conditions
+        bool isGrass = TileManager.Instance.isTargetGroundOnTile(cellPosition, GroundType.Grass); // sol dur
+        bool isMountain = TileManager.Instance.isTargetReliefOnTile(cellPosition, ReliefType.Mountain); // présence de montagne
+        bool noRelief = TileManager.Instance.isTargetReliefOnTile(cellPosition, ReliefType.None); // Absence de relief 
+        bool hasAdjacentRoadOrTown = directions.Any(dir => TileManager.Instance.IsRoadOrTown(cellPosition + dir, true)); // Présence d'au moins une case connectée adjacente
+        bool hasAdjacentWood = directions.Any(dir => TileManager.Instance.isTargetReliefOnTile(cellPosition + dir, ReliefType.Wood));
+        bool hasAdjacentMountain = directions.Any(dir => TileManager.Instance.isTargetReliefOnTile(cellPosition + dir, ReliefType.Mountain));
 
-        if (tileData != null && tileData.Building == BuildingType.None)
+
+        if (TileManager.Instance.GetTileData(cellPosition) != null && TileManager.Instance.isTargetBuildingOnTile(cellPosition, BuildingType.None))
         {
-            // sol classique, absence de relief, presencde d'au moins une case connectée adjacente
-            if (tileData.Ground == GroundType.Grass && 
-                tileData.Relief == ReliefType.None &&
-                directions.Any(dir => TileManager.Instance.IsRoadOrTown(cellPosition + dir, true))) 
-            {
-                options.Add("road");
-            }
+            
+            if (isGrass && noRelief && hasAdjacentRoadOrTown) 
+                options.Add("road");            
+            if (isGrass && noRelief && hasAdjacentWood && hasAdjacentRoadOrTown)
+                options.Add("lumberjack");            
+            if (isGrass && noRelief)
+                options.Add("temple");
+            if (isGrass && isMountain && hasAdjacentRoadOrTown)
+                options.Add("stoneMine");
         }
 
         return options;
@@ -47,24 +59,31 @@ public class BuildingManager : MonoBehaviour
     // Logique de construction
     public void Build(string construction, Vector3Int cellPosition)
     {
-        TileData selectedTileData = TileManager.Instance.GetTileData(cellPosition);
-
-        if (selectedTileData != null)
+        TileData tileData = TileManager.Instance.GetTileData(cellPosition);
+        if (tileData != null)
         {
             switch (construction)
             {
                 case "road":
-                    selectedTileData.Building = BuildingType.Road;
+                    tileData.Building = BuildingType.Road;
                     break;
+                case "lumberjack":
+                    tileData.Building = BuildingType.Lumberjack;
+                    break;
+                case "temple":
+                    tileData.Building = BuildingType.Temple;
+                    break;
+                case "stoneMine":
+                    tileData.Building = BuildingType.StoneMine;
+                    break;
+
             }
 
             // Placer la construction sur la Tilemap
-            TileManager.Instance.PlaceBuildingTile(cellPosition, selectedTileData.Building);
+            TileManager.Instance.PlaceBuildingTile(cellPosition, TileManager.Instance.GetTileData(cellPosition).Building);
 
-            // Décrémenter le nombre de tuile generatrice de mana
-            RessourceManager.Instance.ManaGen--;
-
-            OnBuildingConstructed?.Invoke(cellPosition, selectedTileData);
+            // Envoi du message 
+            OnBuildingConstructed?.Invoke(cellPosition, tileData);
         }
     }
 }

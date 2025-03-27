@@ -212,12 +212,6 @@ public class FogManager : MonoBehaviour
         // incrémenter le nombre de tuiles decouvertes
         RessourceManager.Instance.Tiles++;
 
-        // si la case est de l'herbe, qu'il n'y a pas de relief et pas de batiment, incrémenter le ManaGen
-        if ((tileData.Ground == GroundType.Grass) && (tileData.Relief == ReliefType.None) && (tileData.Building == BuildingType.None))
-        {
-            RessourceManager.Instance.ManaGen++;
-        }
-
         
     }
 
