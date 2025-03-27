@@ -7,193 +7,188 @@ using UnityEngine.Tilemaps;
 public class SaveLoadManager : MonoBehaviour
 {
     private Dictionary<Vector3Int, TileData> _tileDataMap;
-
     private EncryptionManager _encryptionManager;
 
     [SerializeField] private Tilemap _fogTilemap;
     [SerializeField] private Tilemap _reliefTilemap;
     [SerializeField] private Tilemap _buildingTilemap;
 
-    // pour relancer le jeu
-    private PauseGame pauseGame;
-
-
+    private PauseGame _pauseGame;
 
     private void Start()
     {
         _tileDataMap = TileManager.Instance.TileDataMap;
-        pauseGame = GetComponent<PauseGame>();
-        _encryptionManager = new EncryptionManager();        
-
+        _pauseGame = GetComponent<PauseGame>();
+        _encryptionManager = new EncryptionManager();
     }
-
 
     public void Save()
     {
         SaveClaimedTiles();
         SaveResources();
-
-        //relancer le jeu après la sauvegarde
-        if (pauseGame != null)
-        {
-            pauseGame.IsPaused = !pauseGame.IsPaused;
-        }
+        TogglePauseState();
     }
 
     public void Load()
     {
         LoadClaimedTiles();
         LoadResources();
-
-        //relancer le jeu après le chargement
-        pauseGame.IsPaused = !pauseGame.IsPaused;
+        TogglePauseState();
     }
 
+    private void TogglePauseState()
+    {
+        if (_pauseGame != null)
+        {
+            _pauseGame.IsPaused = !_pauseGame.IsPaused;
+        }
+    }
 
-    public void SaveClaimedTiles()
+    private void SaveClaimedTiles()
     {
         List<SavedTileData> savedTiles = new List<SavedTileData>();
 
-        // Parcourir toutes les tuiles et ajouter celles qui sont réclamées
         foreach (var kvp in _tileDataMap)
         {
             TileData tileData = kvp.Value;
             if (tileData.IsClaimed)
             {
                 Vector3Int position = kvp.Key;
-
-                // Récupérer les tuiles de chaque Tilemap
                 TileBase reliefTile = _reliefTilemap.GetTile(position);
                 TileBase buildingTile = _buildingTilemap.GetTile(position);
 
-                // Sauvegarder les données nécessaires
-                SavedTileData savedTile = new SavedTileData(position, tileData, reliefTile, buildingTile);
-                savedTiles.Add(savedTile);
+                savedTiles.Add(new SavedTileData(position, tileData, reliefTile, buildingTile));
             }
         }
 
-        // Convertir en JSON
-        string json = JsonUtility.ToJson(new TileSaveData(savedTiles), true);
-
-        // Cryptage de la chaine de caractère
-        string cryptedJson = _encryptionManager.Encrypt(json);
-
-        // Sauvegarder dans un fichier
-        string filePath = Path.Combine(Application.persistentDataPath, "tile_save.json");
-        File.WriteAllText(filePath, cryptedJson);
-
-        Debug.Log("Sauvegarde des tuiles réussie : " + filePath);
+        SaveToFile(new TileSaveData(savedTiles), "tile_save.json");
     }
 
-    public void LoadClaimedTiles()
+    private void LoadClaimedTiles()
     {
-        string filePath = Path.Combine(Application.persistentDataPath, "tile_save.json");
+        TileSaveData savedData = LoadFromFile<TileSaveData>("tile_save.json");
+        if (savedData == null || savedData.tiles == null) return;
 
-        if (File.Exists(filePath))
+        foreach (SavedTileData savedTile in savedData.tiles)
         {
-            // Lire le contenu du fichier
-            string cryptedJson = File.ReadAllText(filePath);
+            Vector3Int position = savedTile.position;
+            _fogTilemap.SetTile(position, null);
 
-            // decryptage du fichier
-            string json = _encryptionManager.Decrypt(cryptedJson);
-
-            // Désérialiser le JSON en un objet TileSaveData
-            TileSaveData savedData = null;
-            try
+            if (_tileDataMap.TryGetValue(position, out TileData tileData))
             {
-                savedData = JsonUtility.FromJson<TileSaveData>(json);
+                tileData.IsClaimed = true;
+                tileData.Ground = savedTile.tileData.Ground;
+                tileData.Relief = savedTile.tileData.Relief;
+                tileData.Building = savedTile.tileData.Building;
+                tileData.BuildingLevel = savedTile.tileData.BuildingLevel;
+                tileData.InitialFog = savedTile.tileData.InitialFog;
+                tileData.CurrentFog = savedTile.tileData.CurrentFog;
+                tileData.IsConnectedToCapital = savedTile.tileData.IsConnectedToCapital;
+
+                UpdateTileOnMap(position, savedTile.relief, savedTile.building);
             }
-            catch (Exception ex)
+            else
             {
-                Debug.LogError("Erreur lors du chargement du fichier JSON : " + ex.Message);
-                return;
+                Debug.LogWarning($"Position non trouvée dans TileDataMap : {position}");
             }
-
-            if (savedData == null || savedData.tiles == null)
-            {
-                Debug.LogWarning("Aucune tuile enregistrée trouvée dans le fichier de sauvegarde.");
-                return;
-            }
-
-            foreach (SavedTileData savedTile in savedData.tiles)
-            {
-                Vector3Int position = savedTile.position;
-                _fogTilemap.SetTile(position, null);
-
-                if (_tileDataMap.ContainsKey(position))
-                {
-                    TileData tileData = _tileDataMap[position];
-                    //tileData = savedTile.tileData;
-                    tileData.IsClaimed = true;
-                    tileData.Ground = savedTile.tileData.Ground;
-                    tileData.Relief = savedTile.tileData.Relief;
-                    tileData.Building = savedTile.tileData.Building;
-                    tileData.BuildingLevel = savedTile.tileData.BuildingLevel;
-                    tileData.InitialFog = savedTile.tileData.InitialFog;
-                    tileData.CurrentFog = savedTile.tileData.CurrentFog;
-                    tileData.IsConnectedToCapital = savedTile.tileData.IsConnectedToCapital;
-
-                    // Restaurer la tuile sur la tilemap
-                    UpdateTileOnMap(position, savedTile.relief, savedTile.building);
-                }
-            }
-
-            Debug.Log("Chargement des tuiles réussie.");
-        }
-        else
-        {
-            Debug.LogWarning("Aucune sauvegarde trouvée !");
         }
     }
 
     private void UpdateTileOnMap(Vector3Int position, TileBase reliefTile, TileBase buildingTile)
     {
-        // Restaurer la tuile de chaque Tilemap
         if (reliefTile != null)
             _reliefTilemap.SetTile(position, reliefTile);
 
         if (buildingTile != null)
             _buildingTilemap.SetTile(position, buildingTile);
-
-
     }
 
     private void SaveResources()
     {
+        if (RessourceManager.Instance == null)
+        {
+            Debug.LogError("RessourceManager.Instance est null ! Impossible de sauvegarder les ressources.");
+            return;
+        }
+
         RessourceManager ressourceManager = RessourceManager.Instance;
-        SaveRessourceData SaveRessourceData = new SaveRessourceData(ressourceManager.Mana, ressourceManager.ManaPerLevel, ressourceManager.UpdateInterval, ressourceManager.Tiles);
-        string json = JsonUtility.ToJson(SaveRessourceData, true);
-        string cryptedJson = _encryptionManager.Encrypt(json);
-        string filePath = Path.Combine(Application.persistentDataPath, "resources.json");
-        File.WriteAllText(filePath, cryptedJson);
-        Debug.Log("Ressources sauvegardées : " + filePath);
+        SaveRessourceData saveRessourceData = new SaveRessourceData(
+            ressourceManager.Mana, ressourceManager.ManaGen, ressourceManager.Gold,
+            ressourceManager.GoldPerTurn, ressourceManager.Wood, ressourceManager.WoodPerTurn,
+            ressourceManager.Stone, ressourceManager.StonePerTurn,
+            ressourceManager.UpdateInterval, ressourceManager.Tiles
+        ); 
+        SaveToFile(saveRessourceData, "resources.json");
     }
 
     private void LoadResources()
     {
-        string filePath = Path.Combine(Application.persistentDataPath, "resources.json");
-        if (File.Exists(filePath))
-        {
-            string cryptedJson = File.ReadAllText(filePath);
-            string json = _encryptionManager.Decrypt(cryptedJson);  
-            SaveRessourceData SaveRessourceData = JsonUtility.FromJson<SaveRessourceData>(json);
-            RessourceManager ressourceManager = RessourceManager.Instance;
-            ressourceManager.Mana = SaveRessourceData.mana;
-            ressourceManager.ManaPerLevel = SaveRessourceData.manaPerLevel;
-            ressourceManager.UpdateInterval = SaveRessourceData.updateInterval;
-            ressourceManager.Tiles = SaveRessourceData.tiles;
+        SaveRessourceData saveRessourceData = LoadFromFile<SaveRessourceData>("resources.json");
+        if (saveRessourceData == null) return;
 
-            Debug.Log("Ressources chargées");
-        }
-        else
+        if (RessourceManager.Instance == null)
         {
-            Debug.LogWarning("Aucune sauvegarde de ressources trouvée !");
+            Debug.LogError("RessourceManager.Instance est null ! Assurez-vous qu'il est initialisé.");
+            return;
+        }
+
+        RessourceManager ressourceManager = RessourceManager.Instance;
+        ressourceManager.Mana = saveRessourceData.Mana;
+        ressourceManager.ManaGen = saveRessourceData.ManaGen;
+        ressourceManager.Gold = saveRessourceData.Gold;
+        ressourceManager.GoldPerTurn = saveRessourceData.GoldPerTurn;
+        ressourceManager.Wood = saveRessourceData.Wood;
+        ressourceManager.WoodPerTurn = saveRessourceData.WoodPerTurn;
+        ressourceManager.Stone = saveRessourceData.Stone;
+        ressourceManager.StonePerTurn = saveRessourceData.StonePerTurn;
+        ressourceManager.UpdateInterval = saveRessourceData.UpdateInterval;
+        ressourceManager.Tiles = saveRessourceData.Tiles;
+
+        Debug.Log("Ressources chargées avec succès !");
+    }
+
+    private void SaveToFile<T>(T data, string fileName)
+    {
+        try
+        {
+            string json = JsonUtility.ToJson(data, true);
+            string cryptedJson = _encryptionManager.Encrypt(json);
+            string filePath = Path.Combine(Application.persistentDataPath, fileName);
+            File.WriteAllText(filePath, cryptedJson);
+            Debug.Log($"Sauvegarde réussie : {filePath}");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Erreur lors de la sauvegarde de {fileName} : {ex.Message}");
         }
     }
 
+    private T LoadFromFile<T>(string fileName) where T : class
+    {
+        string filePath = Path.Combine(Application.persistentDataPath, fileName);
+        if (!File.Exists(filePath))
+        {
+            Debug.LogWarning($"Aucune sauvegarde trouvée : {fileName}");
+            return null;
+        }
 
+        try
+        {
+            string cryptedJson = File.ReadAllText(filePath);
+            string json = _encryptionManager.Decrypt(cryptedJson);
+            T data = JsonUtility.FromJson<T>(json);
 
+            if (data == null)
+            {
+                Debug.LogError($"Erreur de désérialisation : {fileName}");
+            }
+
+            return data;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Erreur lors du chargement de {fileName} : {ex.Message}");
+            return null;
+        }
+    }
 }
-
-
-
