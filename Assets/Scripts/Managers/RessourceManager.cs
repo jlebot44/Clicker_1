@@ -168,7 +168,7 @@ public class RessourceManager : MonoBehaviour
         _stonePerTurn = 0;
        
         foreach (var building in BuildingManager.Instance.BuildingsDataMap)
-        {            
+        {
             // Ajoute la production du bâtiment à la ressource correspondante
             switch (building.Value.Type)
             {

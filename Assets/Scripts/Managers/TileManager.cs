@@ -174,20 +174,6 @@ public class TileManager : MonoBehaviour
         return GroundType.Other; // Si le nom ne correspond à rien
     }
 
-    //public List<TileData> GetClaimedTowns()
-    //{
-    //    List<TileData> claimedTowns = new List<TileData>();
-
-    //    foreach (var tile in TileDataMap.Values)
-    //    {
-    //        if (tile.IsClaimed && tile.Building == BuildingType.Town)
-    //        {
-    //            claimedTowns.Add(tile);
-    //        }
-    //    }
-    //    return claimedTowns;
-    //}
-
 
     // Méthode pour placer une tile sur la Tilemap
     public void PlaceBuildingTile(Vector3Int cellPosition, BuildingType buildingType)
@@ -225,6 +211,12 @@ public class TileManager : MonoBehaviour
                 BuildingTilemap.SetTile(cellPosition, tileToPlace);
             }
         }
+    }
+
+    public void RemoveBuilding(Vector3Int cellPosition)
+    {
+        Debug.Log("destruction");
+        BuildingTilemap.SetTile(cellPosition, null);
     }
 
     // Méthode pour placer une route et vérifier les tuiles adjacentes

@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO.IsolatedStorage;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class BuildingManager : MonoBehaviour
 {
@@ -16,9 +18,9 @@ public class BuildingManager : MonoBehaviour
     // Dictionnaire global des bâtiments
     private Dictionary<Vector3Int, BuildingData> _buildingsDataMap = new Dictionary<Vector3Int, BuildingData>();
 
-    public Dictionary<Vector3Int, BuildingData> BuildingsDataMap { get => _buildingsDataMap; set => _buildingsDataMap = value; }
+    public Dictionary<Vector3Int, BuildingData> BuildingsDataMap => _buildingsDataMap;
 
-    
+
 
 
     private void Awake()
@@ -53,8 +55,12 @@ public class BuildingManager : MonoBehaviour
         bool hasAdjacentMountain = directions.Any(dir => TileManager.Instance.isTargetReliefOnTile(cellPosition + dir, ReliefType.Mountain));
 
 
-        if (TileManager.Instance.GetTileData(cellPosition) != null && TileManager.Instance.isTargetBuildingOnTile(cellPosition, BuildingType.None))
-        {
+        if (TileManager.Instance.GetTileData(cellPosition) != null)
+        {    
+            if (TileManager.Instance.isTargetBuildingOnTile(cellPosition, BuildingType.None))
+            { 
+
+        
             
             if (isGrass && noRelief && hasAdjacentRoadOrTown) 
                 options.Add("road");            
@@ -63,7 +69,12 @@ public class BuildingManager : MonoBehaviour
             if (isGrass && noRelief)
                 options.Add("temple");
             if (isGrass && isMountain && hasAdjacentRoadOrTown)
-                options.Add("stoneMine");
+                options.Add("stoneMine");        
+            }
+            else
+            {
+                options.Add("destroy");
+            }
         }
 
         return options;
@@ -73,6 +84,12 @@ public class BuildingManager : MonoBehaviour
     public void Build(string construction, Vector3Int cellPosition)
     {
         TileData tileData = TileManager.Instance.GetTileData(cellPosition);
+        if(construction == "destroy")
+        {
+            DestroyBuilding(cellPosition);
+            return;
+        }
+
         if (tileData != null)
         {
             switch (construction)
@@ -89,7 +106,6 @@ public class BuildingManager : MonoBehaviour
                 case "stoneMine":
                     tileData.Building = BuildingType.StoneMine;
                     break;
-
             }
 
             // Placer la construction sur la Tilemap
@@ -98,11 +114,29 @@ public class BuildingManager : MonoBehaviour
             // ajout du batiment dans le dictionnaire du BuildingManager
             AddBuilding(cellPosition, tileData.Building);
 
-            // Envoi du message 
+            // Envoi du message (pour la fermeture de l'ui)
             OnBuildingConstructed?.Invoke(cellPosition);
 
 
         }
+    }
+
+    private void DestroyBuilding(Vector3Int cellPosition)
+    {
+        // suppression de la construiction sur la tilemap
+        TileManager.Instance.RemoveBuilding(cellPosition);
+
+        // retrait du batiment du dictionnaire
+        if (_buildingsDataMap.ContainsKey(cellPosition))
+        {
+            Debug.Log("Avant suppression : " + _buildingsDataMap.Count);
+            _buildingsDataMap.Remove(cellPosition);
+            Debug.Log("Après suppression : " + _buildingsDataMap.Count);
+        }
+
+        // Envoi du message (pour la fermeture de l'ui)
+        OnBuildingConstructed?.Invoke(cellPosition);
+
     }
 
     public void AddBuilding(Vector3Int position, BuildingType buildingType)
