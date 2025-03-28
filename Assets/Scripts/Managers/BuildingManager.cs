@@ -9,9 +9,17 @@ public class BuildingManager : MonoBehaviour
     public static BuildingManager Instance { get; private set; }
 
     // Événement pour notifier qu'une construction a été faite
-    public static event Action<Vector3Int, TileData> OnBuildingConstructed;
+    public static event Action<Vector3Int> OnBuildingConstructed;
 
     Vector3Int[] directions = { Vector3Int.up, Vector3Int.down, Vector3Int.left, Vector3Int.right };
+
+    // Dictionnaire global des bâtiments
+    private Dictionary<Vector3Int, BuildingData> _buildingsDataMap = new Dictionary<Vector3Int, BuildingData>();
+
+    public Dictionary<Vector3Int, BuildingData> BuildingsDataMap { get => _buildingsDataMap; set => _buildingsDataMap = value; }
+
+    
+
 
     private void Awake()
     {
@@ -23,6 +31,11 @@ public class BuildingManager : MonoBehaviour
         {
             Instance = this;
         }
+    }
+
+    private void Start()
+    {
+        AddBuilding(Vector3Int.zero, BuildingType.Town);
     }
 
     // Retourne les constructions disponibles
@@ -82,8 +95,19 @@ public class BuildingManager : MonoBehaviour
             // Placer la construction sur la Tilemap
             TileManager.Instance.PlaceBuildingTile(cellPosition, TileManager.Instance.GetTileData(cellPosition).Building);
 
+            // ajout du batiment dans le dictionnaire du BuildingManager
+            AddBuilding(cellPosition, tileData.Building);
+
             // Envoi du message 
-            OnBuildingConstructed?.Invoke(cellPosition, tileData);
+            OnBuildingConstructed?.Invoke(cellPosition);
+
+
         }
+    }
+
+    public void AddBuilding(Vector3Int position, BuildingType buildingType)
+    {
+        BuildingData buildingData = new BuildingData(buildingType);
+        _buildingsDataMap[position] = buildingData;
     }
 }

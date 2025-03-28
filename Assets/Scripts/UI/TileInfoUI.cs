@@ -42,7 +42,7 @@ public class TileInfoUI : MonoBehaviour
         _tileInfoPositionTMP.text = $"Position: {position}\n";
         _tileInfoGroundTMP.text = $"Terrain: {tileData.Ground}\n";
         _tileInfoReliefTMP.text = $"Relief: {tileData.Relief}\n";
-        _tileInfoBuildingTMP.text = $"Bâtiment: {tileData.Building} (Niveau: {tileData.BuildingLevel})";
+        _tileInfoBuildingTMP.text = $"Bâtiment: {tileData.Building}";
         _tileInfoIsConnectedTMP.text = $"Liaison Capital: {tileData.IsConnectedToCapital}";
 
 
@@ -88,7 +88,7 @@ public class TileInfoUI : MonoBehaviour
         BuildingManager.Instance.Build(construction, position);
     }
 
-    private void CloseUI(Vector3Int position, TileData tileData)
+    private void CloseUI(Vector3Int position)
     {
         ShowUI(false);
     }

@@ -32,14 +32,14 @@ public class TileManager : MonoBehaviour
     [SerializeField] private TileBase _temple;
     [SerializeField] private TileBase _stoneMine;
 
-    private Dictionary<Vector3Int, TileData> tileDataMap = new Dictionary<Vector3Int, TileData>();
+    private Dictionary<Vector3Int, TileData> _tileDataMap = new Dictionary<Vector3Int, TileData>();
 
 
     public Tilemap GroundTilemap { get => _groundTilemap; set => _groundTilemap = value; }
     public Tilemap ReliefTilemap { get => _reliefTilemap; set => _reliefTilemap = value; } 
     public Tilemap BuildingTilemap { get => _buildingTilemap; set => _buildingTilemap = value; }
     public Tilemap FogTilemap { get => _fogTilemap; set => _fogTilemap = value; }
-    public Dictionary<Vector3Int, TileData> TileDataMap { get => tileDataMap; set => tileDataMap = value; }
+    public Dictionary<Vector3Int, TileData> TileDataMap { get => _tileDataMap; set => _tileDataMap = value; }
 
 
 

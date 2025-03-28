@@ -80,7 +80,6 @@ public class SaveLoadManager : MonoBehaviour
                 tileData.Ground = savedTile.tileData.Ground;
                 tileData.Relief = savedTile.tileData.Relief;
                 tileData.Building = savedTile.tileData.Building;
-                tileData.BuildingLevel = savedTile.tileData.BuildingLevel;
                 tileData.InitialFog = savedTile.tileData.InitialFog;
                 tileData.CurrentFog = savedTile.tileData.CurrentFog;
                 tileData.IsConnectedToCapital = savedTile.tileData.IsConnectedToCapital;
@@ -113,9 +112,8 @@ public class SaveLoadManager : MonoBehaviour
 
         RessourceManager ressourceManager = RessourceManager.Instance;
         SaveRessourceData saveRessourceData = new SaveRessourceData(
-            ressourceManager.Mana, ressourceManager.ManaGen, ressourceManager.Gold,
-            ressourceManager.GoldPerTurn, ressourceManager.Wood, ressourceManager.WoodPerTurn,
-            ressourceManager.Stone, ressourceManager.StonePerTurn,
+            ressourceManager.Mana, ressourceManager.Gold,
+            ressourceManager.Wood, ressourceManager.Stone,
             ressourceManager.UpdateInterval, ressourceManager.Tiles
         ); 
         SaveToFile(saveRessourceData, "resources.json");
@@ -134,13 +132,9 @@ public class SaveLoadManager : MonoBehaviour
 
         RessourceManager ressourceManager = RessourceManager.Instance;
         ressourceManager.Mana = saveRessourceData.Mana;
-        ressourceManager.ManaGen = saveRessourceData.ManaGen;
         ressourceManager.Gold = saveRessourceData.Gold;
-        ressourceManager.GoldPerTurn = saveRessourceData.GoldPerTurn;
         ressourceManager.Wood = saveRessourceData.Wood;
-        ressourceManager.WoodPerTurn = saveRessourceData.WoodPerTurn;
         ressourceManager.Stone = saveRessourceData.Stone;
-        ressourceManager.StonePerTurn = saveRessourceData.StonePerTurn;
         ressourceManager.UpdateInterval = saveRessourceData.UpdateInterval;
         ressourceManager.Tiles = saveRessourceData.Tiles;
 
