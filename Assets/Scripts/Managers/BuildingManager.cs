@@ -90,6 +90,7 @@ public class BuildingManager : MonoBehaviour
             return;
         }
 
+        // Place la construction dans le TileDataMap
         if (tileData != null)
         {
             switch (construction)
@@ -126,12 +127,14 @@ public class BuildingManager : MonoBehaviour
         // suppression de la construiction sur la tilemap
         TileManager.Instance.RemoveBuilding(cellPosition);
 
+        // suppresion de la construction dans le TileDataMap
+        TileData tileData = TileManager.Instance.GetTileData(cellPosition);
+        tileData.Building = BuildingType.None;
+
         // retrait du batiment du dictionnaire
         if (_buildingsDataMap.ContainsKey(cellPosition))
         {
-            Debug.Log("Avant suppression : " + _buildingsDataMap.Count);
             _buildingsDataMap.Remove(cellPosition);
-            Debug.Log("Après suppression : " + _buildingsDataMap.Count);
         }
 
         // Envoi du message (pour la fermeture de l'ui)
