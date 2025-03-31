@@ -12,6 +12,23 @@ public class RessourceManager : MonoBehaviour
     public static event Action<int> OnGoldChanged; // Événement déclenché quand l'or change
     public static event Action<int> OnWoodChanged; // Événement déclenché quand le bois change
     public static event Action<int> OnStoneChanged; // Événement déclenché quand la pierre change
+
+    public static event Action<int> OnManaCapacityChanged; // Événement déclenché quand la capacite maximum de mana change
+    public static event Action<int> OnGoldCapacityChanged; // Événement déclenché quand la capacite maximum de l'or change
+    public static event Action<int> OnWoodCapacityChanged; // Événement déclenché quand la capacite maximum du bois change
+    public static event Action<int> OnStoneCapacityChanged; // Événement déclenché quand la capacite maximum de la pierre change
+
+    public static event Action<int> OnManaPerTurnChanged; // Événement déclenché quand le gain par tour de mana change
+    public static event Action<int> OnGoldPerTurnChanged; // Événement déclenché quand le gain par tour de l'or change
+    public static event Action<int> OnWoodPerTurnChanged; // Événement déclenché quand le gain par tour du bois change
+    public static event Action<int> OnStonePerTurnChanged; // Événement déclenché quand le gain par tour de la pierre change
+
+
+
+
+
+
+
     public static event Action<int> OnTilesChanged; // Événement déclenché quand le nombre de tuiles révélées change
     
     // TODO : construire la notification de changmeent sur les générateur de ressoruce
@@ -22,7 +39,7 @@ public class RessourceManager : MonoBehaviour
 
     
     // gestion des ressources
-    [SerializeField] private int _mana = 100; // Ressource de mana
+    [SerializeField] private int _mana = 50; // Ressource de mana
     [SerializeField] private int _gold = 10; // Ressource d'or
     [SerializeField] private int _wood = 0; // Ressource de bois
     [SerializeField] private int _stone = 0; // Ressource de pierre
@@ -33,8 +50,10 @@ public class RessourceManager : MonoBehaviour
     private int _woodPerTurn;
     private int _stonePerTurn;
 
-
-
+    private int _manaCapacity;
+    private int _goldCapacity;
+    private int _woodCapacity;
+    private int _stoneCapacity;
 
 
 
@@ -97,6 +116,50 @@ public class RessourceManager : MonoBehaviour
         }
     }
 
+    public int ManaCapacity
+    {
+        get => _manaCapacity;
+        set
+        {
+            _manaCapacity = Mathf.Max(0, value);
+            OnManaCapacityChanged?.Invoke(_manaCapacity); // Notifie tous les écouteurs que le mana a changé
+        }
+    }
+
+    public int GoldCapacity
+    {
+        get => _goldCapacity;
+        set
+        {
+            _goldCapacity = Mathf.Max(0, value);
+            OnGoldCapacityChanged?.Invoke(_goldCapacity); // Notifie tous les écouteurs que le mana a changé
+        }
+    }
+
+    public int WoodCapacity
+    {
+        get => _woodCapacity;
+        set
+        {
+            _woodCapacity = Mathf.Max(0, value);
+            OnWoodCapacityChanged?.Invoke(_woodCapacity); // Notifie tous les écouteurs que le mana a changé
+        }
+    }
+
+    public int StoneCapacity
+    {
+        get => _stoneCapacity;
+        set
+        {
+            _stoneCapacity = Mathf.Max(0, value);
+            OnStoneCapacityChanged?.Invoke(_stoneCapacity); // Notifie tous les écouteurs que le mana a changé
+        }
+    }
+
+    public void OnEnable()
+    {
+        BuildingManager.OnBuildingConstructed += UpdateRessources;
+    }
 
 
 
@@ -111,8 +174,19 @@ public class RessourceManager : MonoBehaviour
             Debug.LogWarning("RessourceManager déjà existant ! Suppression de l'instance en double.");
             Destroy(gameObject);
             return;
-        }       
+        }     
 
+        
+    }
+
+    private void Start()
+    {
+        ManaCapacity = 50;
+        GoldCapacity = 10;
+        WoodCapacity = 10;
+        StoneCapacity = 10;
+
+        CalculRessourcesPerTurn();
         StartCoroutine(UpdateResources());
     }
 
@@ -126,7 +200,7 @@ public class RessourceManager : MonoBehaviour
 
             if (Time.timeScale > 0) // Vérifie que le jeu n'est pas en pause
             {
-                CalculRessources();
+                CalculRessourcesPerTurn();
                 GainMana();
                 GainGold();
                 GainWood();
@@ -136,61 +210,99 @@ public class RessourceManager : MonoBehaviour
         }
     }
 
+    private void UpdateRessources(Vector3Int @int)
+    {
+        CalculRessourcesPerTurn();
+    }
+
     // Fonction récurrente du gain de mana par cycle
     void GainMana()
     {        
         Mana += _manaPerTurn;
+        if (Mana > ManaCapacity)
+            Mana = ManaCapacity;
     }
 
     // Fonction récurrente d'or de mana par cycle
     void GainGold()
     {
         Gold += _goldPerTurn;
+        if (Gold > GoldCapacity)
+            Gold = GoldCapacity;
+        
     }
     // Fonction récurrente du gain de bois par cycle
     void GainWood()
     {
         Wood += _woodPerTurn;
+        if (Wood > WoodCapacity)
+            Wood = WoodCapacity;
     }
 
     // Fonction récurrente du gain de pierre par cycle
     void GainStone()
     {
         Stone += _stonePerTurn;
+        if (Stone > StoneCapacity)
+            Stone = StoneCapacity;
     }
 
 
-    void CalculRessources()
+    void CalculRessourcesPerTurn()
     {
-        _manaPerTurn = 0;
-        _goldPerTurn = 0;
-        _woodPerTurn = 0;
-        _stonePerTurn = 0;
-       
+        int newManaPerTurn = 0;
+        int newGoldPerTurn = 0;
+        int newWoodPerTurn = 0;
+        int newStonePerTurn = 0;
+
+        if (BuildingManager.Instance == null)
+        {
+            Debug.LogWarning("BuildingManager n'est pas disponible !");
+            return;
+        }
+
         foreach (var building in BuildingManager.Instance.BuildingsDataMap)
-        {            
-            // Ajoute la production du bâtiment à la ressource correspondante
+        {
             switch (building.Value.Type)
             {
                 case BuildingType.Temple:
-                    _manaPerTurn += building.Value.ProductionPerTurn * building.Value.Level;
+                    newManaPerTurn += building.Value.ProductionPerTurn * building.Value.Level;
                     break;
                 case BuildingType.Town:
-                    _goldPerTurn += building.Value.ProductionPerTurn * building.Value.Level;
+                    newGoldPerTurn += building.Value.ProductionPerTurn * building.Value.Level;
                     break;
                 case BuildingType.Lumberjack:
-                    _woodPerTurn += building.Value.ProductionPerTurn * building.Value.Level;
+                    newWoodPerTurn += building.Value.ProductionPerTurn * building.Value.Level;
                     break;
                 case BuildingType.StoneMine:
-                    _stonePerTurn += building.Value.ProductionPerTurn * building.Value.Level;
+                    newStonePerTurn += building.Value.ProductionPerTurn * building.Value.Level;
                     break;
-                    // Ajoute d'autres types de bâtiments selon le besoin
             }
-            
+        }
+
+        // Vérifie si les valeurs ont changé avant d'émettre l'événement
+        if (newManaPerTurn != _manaPerTurn)
+        {
+            _manaPerTurn = newManaPerTurn;
+            OnManaPerTurnChanged?.Invoke(_manaPerTurn);
+        }
+
+        if (newGoldPerTurn != _goldPerTurn)
+        {
+            _goldPerTurn = newGoldPerTurn;
+            OnGoldPerTurnChanged?.Invoke(_goldPerTurn);
+        }
+
+        if (newWoodPerTurn != _woodPerTurn)
+        {
+            _woodPerTurn = newWoodPerTurn;
+            OnWoodPerTurnChanged?.Invoke(_woodPerTurn);
+        }
+
+        if (newStonePerTurn != _stonePerTurn)
+        {
+            _stonePerTurn = newStonePerTurn;
+            OnStonePerTurnChanged?.Invoke(_stonePerTurn);
         }
     }
-
-
-
-
 }
