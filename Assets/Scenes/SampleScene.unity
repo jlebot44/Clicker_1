@@ -5509,6 +5509,7 @@ MonoBehaviour:
   _audioSource: {fileID: 519420034}
   _sfxNewTile: {fileID: 8300000, guid: 85b90c9a2cc48e541bc5f0d8b04ce425, type: 3}
   _clickAnimation: {fileID: 1815101272}
+  _floatingTextPrefab: {fileID: 6112505894473324992, guid: ba5148ceee24f0246803c819d7b92272, type: 3}
   clickPower: 1
 --- !u!483693784 &1113809737
 TilemapRenderer:
@@ -22331,7 +22332,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c92c9bacfd6f9c54a8cd6571526e4540, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tilemap: {fileID: 1113809738}
+  _fogTilemap: {fileID: 1113809738}
 --- !u!4 &1815101273
 Transform:
   m_ObjectHideFlags: 0

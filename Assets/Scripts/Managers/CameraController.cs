@@ -8,6 +8,8 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float maxZoom = 15f;   // Zoom maximum
 
     private Camera cam;
+    private Vector3 dragOrigin;
+    private bool isDragging = false;
 
     void Start()
     {
@@ -18,6 +20,7 @@ public class CameraController : MonoBehaviour
     {
         HandleMovement();
         HandleZoom();
+        HandleDrag();
     }
 
     void HandleMovement()
@@ -37,6 +40,26 @@ public class CameraController : MonoBehaviour
         {
             cam.orthographicSize -= scroll * zoomSpeed;
             cam.orthographicSize = Mathf.Clamp(cam.orthographicSize, minZoom, maxZoom);
+        }
+    }
+
+    void HandleDrag()
+    {
+        if (Input.GetMouseButtonDown(1)) // Clic droit enfoncé
+        {
+            dragOrigin = cam.ScreenToWorldPoint(Input.mousePosition);
+            isDragging = true;
+        }
+
+        if (Input.GetMouseButton(1) && isDragging) // Maintien du clic droit
+        {
+            Vector3 difference = dragOrigin - cam.ScreenToWorldPoint(Input.mousePosition);
+            transform.position += difference;
+        }
+
+        if (Input.GetMouseButtonUp(1)) // Relâchement du clic droit
+        {
+            isDragging = false;
         }
     }
 }
