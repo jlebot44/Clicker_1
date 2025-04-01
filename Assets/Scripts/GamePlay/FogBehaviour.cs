@@ -14,6 +14,10 @@ public class FogManager : MonoBehaviour
     [SerializeField] private GameObject _vfxNewTile; // VFX de revelation d'une tuile
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private AudioClip _sfxNewTile;
+    [SerializeField] private TileClickAnimation _clickAnimation;
+    [SerializeField] private GameObject _floatingTextPrefab;
+    
+
 
 
 
@@ -41,7 +45,8 @@ public class FogManager : MonoBehaviour
         {
             if (RessourceManager.Instance.Mana < clickPower)
             {
-                print("Mana inssuffisant");
+                // si mana insuffisant
+                ShowFloatingText(cellPosition, "Mana inssuffisant", Color.red);
                 return;
             }
             
@@ -51,13 +56,20 @@ public class FogManager : MonoBehaviour
             }
             else
             {
-                print("la case doit être adjacente a une case révélée");
+                // sinon, c'est que la case n'est pas reliée aux cases révélées
+                ShowFloatingText(cellPosition, "la case doit être adjacente a une case révélée", Color.red);
             }            
         }
     }
 
     private void ProcessFogClick(Vector3Int cellPosition, TileData tileData)
     {
+        // animation
+
+        //TileAnimationSystem.AnimateTile(_fogTilemap, cellPosition);
+        _clickAnimation.AnimateTile(cellPosition);
+
+
         // Réduire le brouillard (chaque clic enlève 1 point par clickPower)
         tileData.CurrentFog -= clickPower;
 
@@ -70,12 +82,23 @@ public class FogManager : MonoBehaviour
         // réduire le total de mana
         RessourceManager.Instance.Mana -= clickPower;
 
+        // pop du floatingText qui indique le cout en ressource
+        ShowFloatingText(cellPosition, $"-{clickPower} Mana", Color.blue);
+
         // Si le brouillard est complètement dissipé, retirer la tuile du FogTilemap
         if (tileData.CurrentFog <= 0)
         {
             RevealTile(cellPosition, tileData);
         }
     }
+
+    private void ShowFloatingText(Vector3Int cellPosition, string message, Color color)
+    {
+        Vector3 worldPosition = _fogTilemap.GetCellCenterWorld(cellPosition);
+        GameObject floatingText = Instantiate(_floatingTextPrefab, worldPosition, Quaternion.identity);
+        floatingText.GetComponent<FloatingText>().Initialize(message, color);
+    }
+
 
     bool IsAdjacentToClearedTile(Vector3Int cellPosition)
     {

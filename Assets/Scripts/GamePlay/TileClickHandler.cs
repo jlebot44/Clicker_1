@@ -2,13 +2,13 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.EventSystems;
 using System;
-using Unity.VisualScripting;
 
 public class TileClickHandler : MonoBehaviour
 {
     public static TileClickHandler Instance { get; private set; }
 
     [SerializeField] private Tilemap _tilemap;
+
 
     public static event Action<Vector3Int, TileData> OnTileSelected;
 
