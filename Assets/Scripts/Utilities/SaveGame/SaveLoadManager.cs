@@ -7,6 +7,7 @@ using UnityEngine.Tilemaps;
 public class SaveLoadManager : MonoBehaviour
 {
     private Dictionary<Vector3Int, TileData> _tileDataMap;
+    private Dictionary<Vector3Int, BuildingData> _buildingDataMap;
     private EncryptionManager _encryptionManager;
 
     [SerializeField] private Tilemap _fogTilemap;
@@ -18,6 +19,7 @@ public class SaveLoadManager : MonoBehaviour
     private void Start()
     {
         _tileDataMap = TileManager.Instance.TileDataMap;
+        _buildingDataMap = BuildingManager.Instance.BuildingsDataMap;
         _pauseGame = GetComponent<PauseGame>();
         _encryptionManager = new EncryptionManager();
     }
@@ -26,12 +28,14 @@ public class SaveLoadManager : MonoBehaviour
     {
         SaveClaimedTiles();
         SaveResources();
+        SaveBuildings();
         TogglePauseState();
     }
 
     public void Load()
     {
         LoadClaimedTiles();
+        LoadBuildings();
         LoadResources();
         TogglePauseState();
     }
@@ -93,14 +97,7 @@ public class SaveLoadManager : MonoBehaviour
         }
     }
 
-    private void UpdateTileOnMap(Vector3Int position, TileBase reliefTile, TileBase buildingTile)
-    {
-        if (reliefTile != null)
-            _reliefTilemap.SetTile(position, reliefTile);
 
-        if (buildingTile != null)
-            _buildingTilemap.SetTile(position, buildingTile);
-    }
 
     private void SaveResources()
     {
@@ -141,6 +138,36 @@ public class SaveLoadManager : MonoBehaviour
         Debug.Log("Ressources chargées avec succès !");
     }
 
+    private void SaveBuildings()
+    {
+        List<SavedBuildingData> savedBuildings = new List<SavedBuildingData>();
+
+        foreach (var building in _buildingDataMap)
+        {
+            BuildingData buildingData = building.Value;
+            Vector3Int position = building.Key;
+            savedBuildings.Add(new SavedBuildingData(position, buildingData));
+        }
+        SaveToFile(new BuildingSaveData(savedBuildings), "buildings_save.json");
+    }
+
+
+
+    private void LoadBuildings()
+    {
+        BuildingSaveData savedData = LoadFromFile<BuildingSaveData>("buildings_save.json");
+        if (savedData == null || savedData.buildings == null) return;
+
+        foreach (SavedBuildingData savedBuilding in savedData.buildings)
+        {
+            _buildingDataMap[savedBuilding.position] = savedBuilding.buildingData;
+        }
+
+        // Déclenchement des calculs sur les ressources pour mettre à jour l'interface
+        RessourceManager.Instance.CalculRessourcesPerTurn();
+        RessourceManager.Instance.CalculCapacity();
+    }
+
     private void SaveToFile<T>(T data, string fileName)
     {
         try
@@ -179,10 +206,20 @@ public class SaveLoadManager : MonoBehaviour
 
             return data;
         }
+
         catch (Exception ex)
         {
             Debug.LogError($"Erreur lors du chargement de {fileName} : {ex.Message}");
             return null;
         }
+    }
+
+    private void UpdateTileOnMap(Vector3Int position, TileBase reliefTile, TileBase buildingTile)
+    {
+        if (reliefTile != null)
+            _reliefTilemap.SetTile(position, reliefTile);
+
+        if (buildingTile != null)
+            _buildingTilemap.SetTile(position, buildingTile);
     }
 }

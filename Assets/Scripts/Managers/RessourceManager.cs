@@ -253,7 +253,7 @@ public class RessourceManager : MonoBehaviour
     }
 
 
-    void CalculRessourcesPerTurn()
+    public void CalculRessourcesPerTurn()
     {
         int newManaPerTurn = 0;
         int newGoldPerTurn = 0;
@@ -310,7 +310,7 @@ public class RessourceManager : MonoBehaviour
         }
     }
 
-    void CalculCapacity()
+    public void CalculCapacity()
     {
         Debug.Log($"Capacités de base : Mana={_manaCapacity}, Gold={_goldCapacity}, Wood={_woodCapacity}, Stone={_stoneCapacity}");
         int newManaCapacity = 50;
