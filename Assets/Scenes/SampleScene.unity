@@ -1063,7 +1063,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &436484736
 RectTransform:
   m_ObjectHideFlags: 0
@@ -37570,7 +37570,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -5, y: -10}
+  m_AnchoredPosition: {x: -4.9999847, y: -10}
   m_SizeDelta: {x: -20, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1965806159
@@ -37620,6 +37620,9 @@ MonoBehaviour:
   _lumberjack: {fileID: 11400000, guid: 9f4302e6f5f3de645a81cd0032cc101b, type: 2}
   _temple: {fileID: 11400000, guid: 164e54c0c37161f4eb5d7a72ff111bdd, type: 2}
   _stoneMine: {fileID: 11400000, guid: deb30652ea4636c42982418aa43f0ae3, type: 2}
+  _woodPile: {fileID: 11400000, guid: c3ea0456133a5bb43ac12a0bb5fc9feb, type: 2}
+  _stonePile: {fileID: 11400000, guid: 9ef39992420e80a4f83003cb5508857b, type: 2}
+  _manaPile: {fileID: 11400000, guid: b07532f66cc2c934d97124851796db22, type: 2}
 --- !u!4 &1965806161
 Transform:
   m_ObjectHideFlags: 0

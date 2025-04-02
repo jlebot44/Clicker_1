@@ -31,6 +31,9 @@ public class TileManager : MonoBehaviour
     [SerializeField] private TileBase _lumberjack;
     [SerializeField] private TileBase _temple;
     [SerializeField] private TileBase _stoneMine;
+    [SerializeField] private TileBase _woodPile;
+    [SerializeField] private TileBase _stonePile;
+    [SerializeField] private TileBase _manaPile;
 
     private Dictionary<Vector3Int, TileData> _tileDataMap = new Dictionary<Vector3Int, TileData>();
 
@@ -198,6 +201,15 @@ public class TileManager : MonoBehaviour
                     break;
                 case BuildingType.StoneMine:
                     tileToPlace = _stoneMine;
+                    break;
+                case BuildingType.WoodPile:
+                    tileToPlace = _woodPile;
+                    break;
+                case BuildingType.StonePile:
+                    tileToPlace = _stonePile;
+                    break;
+                case BuildingType.ManaPile:
+                    tileToPlace = _manaPile;
                     break;
                 // Ajoute d'autres cas pour d'autres types de bâtiments
                 default:

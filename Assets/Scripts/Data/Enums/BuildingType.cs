@@ -6,6 +6,9 @@ public enum BuildingType
     Lumberjack,    // bucheron
     Temple,
     StoneMine,
+    WoodPile,
+    StonePile,
+    ManaPile,
     Other // si erreur
 
 }

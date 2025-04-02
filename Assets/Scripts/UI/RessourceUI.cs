@@ -22,15 +22,15 @@ public class RessourceUI : MonoBehaviour
     //[SerializeField] private TextMeshProUGUI _woodCapacityText;
     //[SerializeField] private TextMeshProUGUI _stoneCapacityText;
 
-    private int _mana;
-    private int _gold;
-    private int _wood;
-    private int _stone;
+    private int _mana = 50;
+    private int _gold = 10;
+    private int _wood = 0;
+    private int _stone = 0;
 
-    private int _manaCapacity;
-    private int _goldCapacity;
-    private int _woodCapacity;
-    private int _stoneCapacity;
+    private int _manaCapacity = 50;
+    private int _goldCapacity = 50;
+    private int _woodCapacity = 10;
+    private int _stoneCapacity = 10;
     
     
 
@@ -114,23 +114,23 @@ public class RessourceUI : MonoBehaviour
 
     private void UpdateManaPerTurnDisplay(int newManaPerTurn)
     {
-        _manaPerTurnText.text = newManaPerTurn.ToString(); // Met à jour l'affichage du gain de mana par tour
+        _manaPerTurnText.text = "+" + newManaPerTurn.ToString(); // Met à jour l'affichage du gain de mana par tour
     }
 
     private void UpdateGoldPerTurnDisplay(int newGoldPerTurn)
     {
 
-        _goldPerTurnText.text = newGoldPerTurn.ToString(); // Met à jour l'affichage du gain d'or par tour
+        _goldPerTurnText.text = "+" + newGoldPerTurn.ToString(); // Met à jour l'affichage du gain d'or par tour
     }
 
     private void UpdateWoodPerTurnDisplay(int newWoodPerTurn)
     {
-        _woodPerTurnText.text = newWoodPerTurn.ToString(); // Met à jour l'affichage du gain de bois par tour
+        _woodPerTurnText.text = "+" + newWoodPerTurn.ToString(); // Met à jour l'affichage du gain de bois par tour
     }
 
     private void UpdateStonePerTurnDisplay(int newStonePerTurn)
     {
-        _stonePerTurnText.text = newStonePerTurn.ToString(); // Met à jour l'affichage du gain de pierre
+        _stonePerTurnText.text = "+" + newStonePerTurn.ToString(); // Met à jour l'affichage du gain de pierre
     }
 
 

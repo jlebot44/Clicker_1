@@ -58,18 +58,21 @@ public class BuildingManager : MonoBehaviour
         if (TileManager.Instance.GetTileData(cellPosition) != null)
         {    
             if (TileManager.Instance.isTargetBuildingOnTile(cellPosition, BuildingType.None))
-            { 
-
-        
-            
-            if (isGrass && noRelief && hasAdjacentRoadOrTown) 
-                options.Add("road");            
-            if (isGrass && noRelief && hasAdjacentWood && hasAdjacentRoadOrTown)
-                options.Add("lumberjack");            
-            if (isGrass && noRelief)
-                options.Add("temple");
-            if (isGrass && isMountain && hasAdjacentRoadOrTown)
-                options.Add("stoneMine");        
+            {
+                if (isGrass && noRelief && hasAdjacentRoadOrTown) 
+                    options.Add("road");            
+                if (isGrass && noRelief && hasAdjacentWood && hasAdjacentRoadOrTown)
+                    options.Add("lumberjack");            
+                if (isGrass && noRelief)
+                    options.Add("temple");
+                if (isGrass && isMountain && hasAdjacentRoadOrTown)
+                    options.Add("stoneMine");
+                if (isGrass && noRelief)
+                    options.Add("stonePile");
+                if (isGrass && noRelief)
+                    options.Add("woodPile");
+                if (isGrass && noRelief)
+                    options.Add("manaPile");
             }
             else
             {
@@ -106,6 +109,16 @@ public class BuildingManager : MonoBehaviour
                     break;
                 case "stoneMine":
                     tileData.Building = BuildingType.StoneMine;
+                    break;
+                case "woodPile":
+                    tileData.Building = BuildingType.WoodPile;
+                    Debug.Log("ok woodpile");
+                    break;
+                case "stonePile":
+                    tileData.Building = BuildingType.StonePile;
+                    break;
+                case "manaPile":
+                    tileData.Building = BuildingType.ManaPile;
                     break;
             }
 
