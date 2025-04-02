@@ -39,8 +39,9 @@ public class FogManager : MonoBehaviour
         }
     }
 
-    private void HandleTileSelected(Vector3Int cellPosition, TileData tileData)
+    private void HandleTileSelected(Vector3Int cellPosition)
     {
+        TileData tileData = TileManager.Instance.GetTileData(cellPosition);
         if (tileData != null && tileData.CurrentFog > 0) // Clic gauche pour dissiper le brouillard
         {
             if (RessourceManager.Instance.Mana < clickPower)

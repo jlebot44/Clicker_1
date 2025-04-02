@@ -10,7 +10,7 @@ public class TileClickHandler : MonoBehaviour
     [SerializeField] private Tilemap _tilemap;
 
 
-    public static event Action<Vector3Int, TileData> OnTileSelected;
+    public static event Action<Vector3Int> OnTileSelected;
 
     private void Awake()
     {
@@ -38,7 +38,7 @@ public class TileClickHandler : MonoBehaviour
             if (selectedTileData != null)
             {
                 // Émettre un événement pour dire qu'une tuile a été sélectionnée
-                OnTileSelected?.Invoke(cellPosition, selectedTileData);
+                OnTileSelected?.Invoke(cellPosition);
             }
         }
     }

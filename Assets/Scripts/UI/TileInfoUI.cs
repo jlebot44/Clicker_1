@@ -31,15 +31,16 @@ public class TileInfoUI : MonoBehaviour
         BuildingManager.OnBuildingConstructed -= CloseUI;
     }
 
-    private void UpdateTileInfo(Vector3Int position, TileData tileData)
+    private void UpdateTileInfo(Vector3Int cellPposition)
     {
+        TileData tileData = TileManager.Instance.GetTileData(cellPposition);
         if (tileData == null || !tileData.IsClaimed)
         {
             ShowUI(false);
             return;
         }
         
-        _tileInfoPositionTMP.text = $"Position: {position}\n";
+        _tileInfoPositionTMP.text = $"Position: {cellPposition}\n";
         _tileInfoGroundTMP.text = $"Terrain: {tileData.Ground}\n";
         _tileInfoReliefTMP.text = $"Relief: {tileData.Relief}\n";
         _tileInfoBuildingTMP.text = $"Bâtiment: {tileData.Building}";
@@ -47,7 +48,7 @@ public class TileInfoUI : MonoBehaviour
 
 
         ShowUI(true);
-        UpdateConstructionOptions(position);
+        UpdateConstructionOptions(cellPposition);
     }
 
     private void UpdateConstructionOptions(Vector3Int cellPosition)

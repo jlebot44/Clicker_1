@@ -95,7 +95,7 @@ public class RessourceUI : MonoBehaviour
     private void UpdateGoldDisplay(int newGold)
     {
         _gold = newGold;
-        _goldText.text = _gold.ToString() + " / " + _manaCapacity.ToString(); // Met à jour l'affichage de l'or
+        _goldText.text = _gold.ToString() + " / " + _goldCapacity.ToString(); // Met à jour l'affichage de l'or
     }
 
     private void UpdateWoodDisplay(int newWood)
