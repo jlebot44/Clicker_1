@@ -15,4 +15,4 @@ MonoBehaviour:
   buildingType: 2
   resourceCosts:
   - resourceName: Gold
-    amount: 10
+    amount: 1

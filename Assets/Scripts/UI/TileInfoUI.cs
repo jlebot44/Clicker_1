@@ -97,7 +97,7 @@ public class TileInfoUI : MonoBehaviour
         }
     }
 
-    private void CloseUI(Vector3Int position)
+    private void CloseUI()
     {
         ShowUI(false);
     }

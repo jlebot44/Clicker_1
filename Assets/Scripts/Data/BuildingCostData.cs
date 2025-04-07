@@ -11,6 +11,6 @@ public class BuildingCostData : ScriptableObject
 [System.Serializable]
 public class ResourceCost
 {
-    public string resourceName; // Nom de la ressource (ex: "Gold", "Wood", etc.)
+    public ResourceType resourceType; // Nom de la ressource (ex: "Gold", "Wood", etc.)
     public int amount;          // Quantité nécessaire
 }

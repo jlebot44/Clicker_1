@@ -12,8 +12,7 @@ public class BuildingManager : MonoBehaviour
     public static BuildingManager Instance { get; private set; }
 
     // Événement pour notifier qu'une construction a été faite
-    public static event Action<Vector3Int> OnBuildingConstructed;
-
+    public static event Action OnBuildingConstructed;
 
     readonly Vector3Int[] directions = { Vector3Int.up, Vector3Int.down, Vector3Int.left, Vector3Int.right };
 
@@ -113,7 +112,7 @@ public class BuildingManager : MonoBehaviour
                 AddBuilding(cellPosition, tileData.Building);
 
                 // Envoi du message (pour la fermeture de l'UI)
-                OnBuildingConstructed?.Invoke(cellPosition);
+                OnBuildingConstructed?.Invoke();
             }
         }
         else
@@ -139,7 +138,7 @@ public class BuildingManager : MonoBehaviour
         }
 
         // Envoi du message (pour la fermeture de l'ui)
-        OnBuildingConstructed?.Invoke(cellPosition);
+        OnBuildingConstructed?.Invoke();
 
     }
 
@@ -162,7 +161,7 @@ public class BuildingManager : MonoBehaviour
     {
         foreach (var resourceCost in buildingCostData.resourceCosts)
         {
-            if (!RessourceManager.Instance.HasEnoughResources(resourceCost.resourceName, resourceCost.amount))
+            if (!ResourceManager.Instance.HasEnoughResources(resourceCost.resourceType, resourceCost.amount))
             {
 
                 // !!!!!!!!!!!!!
@@ -179,7 +178,7 @@ public class BuildingManager : MonoBehaviour
     {
         foreach (var resourceCost in buildingCostData.resourceCosts)
         {
-            RessourceManager.Instance.DeductResources(resourceCost.resourceName, resourceCost.amount);
+            ResourceManager.Instance.DeductResources(resourceCost.resourceType, resourceCost.amount);
         }
     }
 }

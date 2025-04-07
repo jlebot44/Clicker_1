@@ -914,7 +914,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 19.3
+  m_fontSize: 26
   m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -4751,7 +4751,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 21.7
+  m_fontSize: 26
   m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -5196,7 +5196,7 @@ GameObject:
   - component: {fileID: 981685856}
   - component: {fileID: 981685858}
   m_Layer: 0
-  m_Name: RessourcePanel
+  m_Name: ResourcePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -20956,6 +20956,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ea5a92ed738a5248ae9b63f75cfc7ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  buildingCostsList:
+  - {fileID: 11400000, guid: 9b6e4ca368539214186e4ce01a845cf0, type: 2}
+  - {fileID: 11400000, guid: 41b4fb57c14fcff428ec7f964f4dad37, type: 2}
+  - {fileID: 11400000, guid: 33cbf31271a25dd4494b3ac164545831, type: 2}
+  - {fileID: 11400000, guid: f501b667cc47cc942882bf2caffb2874, type: 2}
+  - {fileID: 11400000, guid: f68acaa0871da9a4a857c474fea4a9a6, type: 2}
+  - {fileID: 11400000, guid: 22d84b4900e6cbc4abbc137febd62576, type: 2}
+  - {fileID: 11400000, guid: 6e3789a049708924a97dbcc4c1790f14, type: 2}
 --- !u!1 &1494140576
 GameObject:
   m_ObjectHideFlags: 0
@@ -37571,7 +37579,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -4.9999847, y: -10}
+  m_AnchoredPosition: {x: -5, y: -10}
   m_SizeDelta: {x: -20, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1965806159
@@ -37650,7 +37658,7 @@ GameObject:
   - component: {fileID: 2130904647}
   - component: {fileID: 2130904648}
   m_Layer: 0
-  m_Name: RessourceManager
+  m_Name: ResourceManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

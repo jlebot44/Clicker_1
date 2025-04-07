@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingType: 3
   resourceCosts:
-  - resourceName: Gold
+  - resourceType: 0
     amount: 5

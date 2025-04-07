@@ -101,16 +101,16 @@ public class SaveLoadManager : MonoBehaviour
 
     private void SaveResources()
     {
-        if (RessourceManager.Instance == null)
+        if (ResourceManager.Instance == null)
         {
             Debug.LogError("RessourceManager.Instance est null ! Impossible de sauvegarder les ressources.");
             return;
         }
 
-        RessourceManager ressourceManager = RessourceManager.Instance;
-        SaveRessourceData saveRessourceData = new SaveRessourceData(
-            ressourceManager.Mana, ressourceManager.Gold,
-            ressourceManager.Wood, ressourceManager.Stone,
+        ResourceManager ressourceManager = ResourceManager.Instance;
+        SaveResourceData saveRessourceData = new SaveResourceData(
+            ressourceManager.GetResource(ResourceType.Mana), ressourceManager.GetResource(ResourceType.Gold),
+            ressourceManager.GetResource(ResourceType.Wood), ressourceManager.GetResource(ResourceType.Stone),
             ressourceManager.UpdateInterval, ressourceManager.Tiles
         ); 
         SaveToFile(saveRessourceData, "resources.json");
@@ -118,20 +118,20 @@ public class SaveLoadManager : MonoBehaviour
 
     private void LoadResources()
     {
-        SaveRessourceData saveRessourceData = LoadFromFile<SaveRessourceData>("resources.json");
+        SaveResourceData saveRessourceData = LoadFromFile<SaveResourceData>("resources.json");
         if (saveRessourceData == null) return;
 
-        if (RessourceManager.Instance == null)
+        if (ResourceManager.Instance == null)
         {
             Debug.LogError("RessourceManager.Instance est null ! Assurez-vous qu'il est initialisé.");
             return;
         }
 
-        RessourceManager ressourceManager = RessourceManager.Instance;
-        ressourceManager.Mana = saveRessourceData.Mana;
-        ressourceManager.Gold = saveRessourceData.Gold;
-        ressourceManager.Wood = saveRessourceData.Wood;
-        ressourceManager.Stone = saveRessourceData.Stone;
+        ResourceManager ressourceManager = ResourceManager.Instance;
+        ressourceManager.SetResource(ResourceType.Mana, saveRessourceData.Mana);
+        ressourceManager.SetResource(ResourceType.Gold, saveRessourceData.Gold);
+        ressourceManager.SetResource(ResourceType.Wood, saveRessourceData.Wood);
+        ressourceManager.SetResource(ResourceType.Stone, saveRessourceData.Stone);
         ressourceManager.UpdateInterval = saveRessourceData.UpdateInterval;
         ressourceManager.Tiles = saveRessourceData.Tiles;
 
@@ -164,8 +164,8 @@ public class SaveLoadManager : MonoBehaviour
         }
 
         // Déclenchement des calculs sur les ressources pour mettre à jour l'interface
-        RessourceManager.Instance.CalculRessourcesPerTurn();
-        RessourceManager.Instance.CalculCapacity();
+        ResourceManager.Instance.CalculRessourcesPerTurn();
+        ResourceManager.Instance.CalculCapacity();
     }
 
     private void SaveToFile<T>(T data, string fileName)

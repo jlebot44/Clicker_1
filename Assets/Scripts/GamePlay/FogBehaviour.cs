@@ -43,7 +43,7 @@ public class FogManager : MonoBehaviour
         TileData tileData = TileManager.Instance.GetTileData(cellPosition);
         if (tileData != null && tileData.CurrentFog > 0) // Clic gauche pour dissiper le brouillard
         {
-            if (!RessourceManager.Instance.HasEnoughResources("Mana", clickPower))
+            if (!ResourceManager.Instance.HasEnoughResources(ResourceType.Mana, clickPower))
             {
                 // si mana insuffisant
                 ShowFloatingText(cellPosition, "Mana inssuffisant", Color.red);
@@ -79,7 +79,7 @@ public class FogManager : MonoBehaviour
         UpdateHealthBar(cellPosition, tileData);
 
         // réduire le total de mana
-        RessourceManager.Instance.DeductResources("Mana", clickPower);
+        ResourceManager.Instance.DeductResources(ResourceType.Mana, clickPower);
 
         // pop du floatingText qui indique le cout en ressource
         ShowFloatingText(cellPosition, $"-{clickPower} Mana", Color.blue);
@@ -88,6 +88,10 @@ public class FogManager : MonoBehaviour
         if (tileData.CurrentFog <= 0)
         {
             RevealTile(cellPosition, tileData);
+            if (tileData.Building == BuildingType.Town)
+            {
+                ResourceManager.Instance.CalculResources();
+            }
         }
     }
 
@@ -240,9 +244,7 @@ public class FogManager : MonoBehaviour
         Destroy(effect, 1.5f);
 
         // incrémenter le nombre de tuiles decouvertes
-        RessourceManager.Instance.Tiles++;
-
-        
+        ResourceManager.Instance.Tiles++;       
     }
 
 

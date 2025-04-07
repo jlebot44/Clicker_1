@@ -13,4 +13,6 @@ MonoBehaviour:
   m_Name: TempleCost
   m_EditorClassIdentifier: 
   buildingType: 4
-  resourceCosts: []
+  resourceCosts:
+  - resourceName: Gold
+    amount: 1

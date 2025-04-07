@@ -11,20 +11,20 @@ public class ProgressBarManager : MonoBehaviour
     private void OnEnable()
     {
         // Abonnement à l'événement OnProgressReset pour réinitialiser la barre de progression
-        RessourceManager.OnProgressReset += ResetProgressBar;
+        ResourceManager.OnProgressReset += ResetProgressBar;
     }
 
     private void OnDisable()
     {
         // Se désabonner de l'événement OnProgressReset lors de la désactivation
-        RessourceManager.OnProgressReset -= ResetProgressBar;
+        ResourceManager.OnProgressReset -= ResetProgressBar;
     }
 
     private void Start()
     {
         // Initialisation de la barre de progression
         _progressBar.value = 0f;
-        ResetProgressBar(RessourceManager.Instance.UpdateInterval);
+        ResetProgressBar(ResourceManager.Instance.UpdateInterval);
     }
 
     private void Update()

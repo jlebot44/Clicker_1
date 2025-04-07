@@ -1,5 +1,5 @@
 [System.Serializable]
-public class SaveRessourceData
+public class SaveResourceData
 {
     public int Mana;
     public int Gold;
@@ -9,7 +9,7 @@ public class SaveRessourceData
     public int Tiles;
 
     // Constructeur
-    public SaveRessourceData(int mana, int gold, int wood, int stone, float updateInterval, int tiles)
+    public SaveResourceData(int mana, int gold, int wood, int stone, float updateInterval, int tiles)
     {
         Mana = mana;
         Gold = gold;
