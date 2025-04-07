@@ -86,7 +86,15 @@ public class TileInfoUI : MonoBehaviour
 
     private void OnConstructionSelected(string construction, Vector3Int position)
     {
-        BuildingManager.Instance.Build(construction, position);
+        // Convertir la chaîne en BuildingType
+        if (Enum.TryParse(construction, out BuildingType buildingType))
+        {
+            BuildingManager.Instance.Build(buildingType, position);
+        }
+        else
+        {
+            Debug.LogWarning($"Construction inconnue: {construction}");
+        }
     }
 
     private void CloseUI(Vector3Int position)

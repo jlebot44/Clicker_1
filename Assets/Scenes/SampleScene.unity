@@ -5507,7 +5507,7 @@ MonoBehaviour:
   _vfxNewTile: {fileID: 3950696201345914650, guid: 1d1725d9df81a2541bb9d8681c639184, type: 3}
   _audioSource: {fileID: 519420034}
   _sfxNewTile: {fileID: 8300000, guid: 85b90c9a2cc48e541bc5f0d8b04ce425, type: 3}
-  _clickAnimation: {fileID: 1815101272}
+  _tileClickAnimation: {fileID: 1815101274}
   _floatingTextPrefab: {fileID: 6112505894473324992, guid: ba5148ceee24f0246803c819d7b92272, type: 3}
   clickPower: 1
 --- !u!483693784 &1113809737
@@ -22311,7 +22311,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1815101273}
-  - component: {fileID: 1815101272}
+  - component: {fileID: 1815101274}
   m_Layer: 0
   m_Name: TileAnimationManager
   m_TagString: Untagged
@@ -22319,19 +22319,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1815101272
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1815101271}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c92c9bacfd6f9c54a8cd6571526e4540, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _fogTilemap: {fileID: 1113809738}
 --- !u!4 &1815101273
 Transform:
   m_ObjectHideFlags: 0
@@ -22347,6 +22334,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 392385203}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1815101274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1815101271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92c9bacfd6f9c54a8cd6571526e4540, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shakeIntensity: 0.1
+  shakeDuration: 0.2
 --- !u!1 &1888590711
 GameObject:
   m_ObjectHideFlags: 0

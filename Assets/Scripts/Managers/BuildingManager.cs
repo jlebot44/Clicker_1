@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO.IsolatedStorage;
 using System.Linq;
+using System.Resources;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -13,14 +14,18 @@ public class BuildingManager : MonoBehaviour
     // Événement pour notifier qu'une construction a été faite
     public static event Action<Vector3Int> OnBuildingConstructed;
 
-    Vector3Int[] directions = { Vector3Int.up, Vector3Int.down, Vector3Int.left, Vector3Int.right };
+
+    readonly Vector3Int[] directions = { Vector3Int.up, Vector3Int.down, Vector3Int.left, Vector3Int.right };
+
+    // Liste des coûts de construction pour chaque bâtiment
+    public List<BuildingCostData> buildingCostsList;
+
+
 
     // Dictionnaire global des bâtiments
-    private Dictionary<Vector3Int, BuildingData> _buildingsDataMap = new Dictionary<Vector3Int, BuildingData>();
+    [SerializeField] private Dictionary<Vector3Int, BuildingData> _buildingsDataMap = new Dictionary<Vector3Int, BuildingData>();
 
     public Dictionary<Vector3Int, BuildingData> BuildingsDataMap => _buildingsDataMap;
-
-
 
 
     private void Awake()
@@ -44,94 +49,77 @@ public class BuildingManager : MonoBehaviour
     public List<string> GetAvailableConstructions(Vector3Int cellPosition)
     {
         List<string> options = new List<string>();
-        
-        
+
         // Pré-calcul des conditions
-        bool isGrass = TileManager.Instance.isTargetGroundOnTile(cellPosition, GroundType.Grass); // sol dur
-        bool isMountain = TileManager.Instance.isTargetReliefOnTile(cellPosition, ReliefType.Mountain); // présence de montagne
-        bool noRelief = TileManager.Instance.isTargetReliefOnTile(cellPosition, ReliefType.None); // Absence de relief 
-        bool hasAdjacentRoadOrTown = directions.Any(dir => TileManager.Instance.IsRoadOrTown(cellPosition + dir, true)); // Présence d'au moins une case connectée adjacente
+        bool isGrass = TileManager.Instance.isTargetGroundOnTile(cellPosition, GroundType.Grass);
+        bool isMountain = TileManager.Instance.isTargetReliefOnTile(cellPosition, ReliefType.Mountain);
+        bool noRelief = TileManager.Instance.isTargetReliefOnTile(cellPosition, ReliefType.None);
+        bool hasAdjacentRoadOrTown = directions.Any(dir => TileManager.Instance.IsRoadOrTown(cellPosition + dir, true));
         bool hasAdjacentWood = directions.Any(dir => TileManager.Instance.isTargetReliefOnTile(cellPosition + dir, ReliefType.Wood));
         bool hasAdjacentMountain = directions.Any(dir => TileManager.Instance.isTargetReliefOnTile(cellPosition + dir, ReliefType.Mountain));
 
-
         if (TileManager.Instance.GetTileData(cellPosition) != null)
-        {    
+        {
             if (TileManager.Instance.isTargetBuildingOnTile(cellPosition, BuildingType.None))
             {
-                if (isGrass && noRelief && hasAdjacentRoadOrTown) 
-                    options.Add("road");            
+                // Ajout des constructions possibles
+                if (isGrass && noRelief && hasAdjacentRoadOrTown)
+                    options.Add(BuildingType.Road.ToString());
                 if (isGrass && noRelief && hasAdjacentWood && hasAdjacentRoadOrTown)
-                    options.Add("lumberjack");            
+                    options.Add(BuildingType.Lumberjack.ToString());
                 if (isGrass && noRelief)
-                    options.Add("temple");
+                    options.Add(BuildingType.Temple.ToString());
                 if (isGrass && isMountain && hasAdjacentRoadOrTown)
-                    options.Add("stoneMine");
+                    options.Add(BuildingType.StoneMine.ToString());
                 if (isGrass && noRelief)
-                    options.Add("stonePile");
+                    options.Add(BuildingType.StonePile.ToString());
                 if (isGrass && noRelief)
-                    options.Add("woodPile");
+                    options.Add(BuildingType.WoodPile.ToString());
                 if (isGrass && noRelief)
-                    options.Add("manaPile");
+                    options.Add(BuildingType.ManaPile.ToString());
             }
             else
             {
-                options.Add("destroy");
+                options.Add(BuildingType.None.ToString()); // Utilisation de l'énumération pour "destroy"
             }
         }
-
         return options;
     }
 
     // Logique de construction
-    public void Build(string construction, Vector3Int cellPosition)
+    public void Build(BuildingType construction, Vector3Int cellPosition)
     {
         TileData tileData = TileManager.Instance.GetTileData(cellPosition);
-        if(construction == "destroy")
+        if (construction == BuildingType.None)
         {
             DestroyBuilding(cellPosition);
             return;
         }
 
-        // Place la construction dans le TileDataMap
-        if (tileData != null)
-        {
-            switch (construction)
+        BuildingCostData buildingCostData = GetBuildingCostData(construction);  // Obtient les coûts de construction
+
+        if (HasEnoughResources(buildingCostData))
+        { 
+            // Place la construction dans le TileDataMap
+            if (tileData != null)
             {
-                case "road":
-                    tileData.Building = BuildingType.Road;
-                    break;
-                case "lumberjack":
-                    tileData.Building = BuildingType.Lumberjack;
-                    break;
-                case "temple":
-                    tileData.Building = BuildingType.Temple;
-                    break;
-                case "stoneMine":
-                    tileData.Building = BuildingType.StoneMine;
-                    break;
-                case "woodPile":
-                    tileData.Building = BuildingType.WoodPile;
-                    Debug.Log("ok woodpile");
-                    break;
-                case "stonePile":
-                    tileData.Building = BuildingType.StonePile;
-                    break;
-                case "manaPile":
-                    tileData.Building = BuildingType.ManaPile;
-                    break;
+                tileData.Building = construction;
+                DeductResources(buildingCostData);
+
+                // Placer la construction sur la Tilemap
+                TileManager.Instance.PlaceBuildingTile(cellPosition, tileData.Building);
+
+                // Ajout du bâtiment dans le dictionnaire du BuildingManager
+                AddBuilding(cellPosition, tileData.Building);
+
+                // Envoi du message (pour la fermeture de l'UI)
+                OnBuildingConstructed?.Invoke(cellPosition);
             }
-
-            // Placer la construction sur la Tilemap
-            TileManager.Instance.PlaceBuildingTile(cellPosition, TileManager.Instance.GetTileData(cellPosition).Building);
-
-            // ajout du batiment dans le dictionnaire du BuildingManager
-            AddBuilding(cellPosition, tileData.Building);
-
-            // Envoi du message (pour la fermeture de l'ui)
-            OnBuildingConstructed?.Invoke(cellPosition);
-
-
+        }
+        else
+        {
+            // Afficher un message d'erreur ou une UI indiquant qu'il n'y a pas assez de ressources
+            Debug.Log("Pas assez de ressources pour construire ce bâtiment !");
         }
     }
 
@@ -159,5 +147,39 @@ public class BuildingManager : MonoBehaviour
     {
         BuildingData buildingData = new BuildingData(buildingType);
         _buildingsDataMap[position] = buildingData;
+    }
+
+    // Obtient les données de coût pour un bâtiment donné
+    private BuildingCostData GetBuildingCostData(BuildingType buildingType)
+    {
+        // Recherche dans une liste ou base de données des coûts pour chaque type de bâtiment
+        return buildingCostsList.Find(cost => cost.buildingType == buildingType);
+    }
+
+
+    // Vérifie si les ressources sont suffisantes
+    private bool HasEnoughResources(BuildingCostData buildingCostData)
+    {
+        foreach (var resourceCost in buildingCostData.resourceCosts)
+        {
+            if (!RessourceManager.Instance.HasEnoughResources(resourceCost.resourceName, resourceCost.amount))
+            {
+
+                // !!!!!!!!!!!!!
+                // TODO : implémenter une message pour indiquer qu'il manque des ressources
+                //!!!!!!!!!!!!!!
+                return false;  // Pas assez de cette ressource
+            }
+        }
+        return true;  // Toutes les ressources sont suffisantes
+    }
+
+    // Déduit les ressources après la construction
+    private void DeductResources(BuildingCostData buildingCostData)
+    {
+        foreach (var resourceCost in buildingCostData.resourceCosts)
+        {
+            RessourceManager.Instance.DeductResources(resourceCost.resourceName, resourceCost.amount);
+        }
     }
 }

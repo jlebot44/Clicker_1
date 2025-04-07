@@ -367,4 +367,56 @@ public class RessourceManager : MonoBehaviour
             OnStoneCapacityChanged?.Invoke(_stoneCapacity);
         }
     }
+
+    internal void DeductResources(string resourceName, int amount)
+    {
+        switch (resourceName.ToLower())
+        {
+            case "mana":
+                Mana -= amount;
+                break;
+
+            case "gold":
+                Gold -= amount;
+                break;
+
+            case "wood":
+                Wood -= amount;
+                break;
+
+            case "stone":
+                Stone -= amount;
+                break;
+
+            default:
+                Debug.LogWarning($"Ressource inconnue : {resourceName}. Aucune déduction appliquée.");
+                break;
+        }
+    }
+
+    internal bool HasEnoughResources(string resourceName, int amount)
+    {
+        // Convertir le nom de la ressource en minuscules pour éviter des erreurs de casse
+        resourceName = resourceName.ToLower();
+
+        // Vérifier la ressource demandée et comparer avec la quantité disponible
+        switch (resourceName)
+        {
+            case "mana":
+                return Mana >= amount; // Vérifie si le mana disponible est suffisant
+
+            case "gold":
+                return Gold >= amount; // Vérifie si l'or disponible est suffisant
+
+            case "wood":
+                return Wood >= amount; // Vérifie si le bois disponible est suffisant
+
+            case "stone":
+                return Stone >= amount; // Vérifie si la pierre disponible est suffisante
+
+            default:
+                Debug.LogWarning($"Ressource inconnue : {resourceName}. Impossible de vérifier la quantité.");
+                return false; // Retourne false si la ressource demandée n'est pas reconnue
+        }
+    }
 }

@@ -1,9 +1,11 @@
+using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class FogManager : MonoBehaviour
 {
@@ -14,12 +16,9 @@ public class FogManager : MonoBehaviour
     [SerializeField] private GameObject _vfxNewTile; // VFX de revelation d'une tuile
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private AudioClip _sfxNewTile;
-    [SerializeField] private TileClickAnimation _clickAnimation;
+    [SerializeField] private TileClickAnimation _tileClickAnimation;
     [SerializeField] private GameObject _floatingTextPrefab;
     
-
-
-
 
     [SerializeField] private int clickPower = 1; // puissance du clic - cout en mana du clic
 
@@ -44,7 +43,7 @@ public class FogManager : MonoBehaviour
         TileData tileData = TileManager.Instance.GetTileData(cellPosition);
         if (tileData != null && tileData.CurrentFog > 0) // Clic gauche pour dissiper le brouillard
         {
-            if (RessourceManager.Instance.Mana < clickPower)
+            if (!RessourceManager.Instance.HasEnoughResources("Mana", clickPower))
             {
                 // si mana insuffisant
                 ShowFloatingText(cellPosition, "Mana inssuffisant", Color.red);
@@ -63,12 +62,11 @@ public class FogManager : MonoBehaviour
         }
     }
 
+
     private void ProcessFogClick(Vector3Int cellPosition, TileData tileData)
     {
         // animation
-
-        //TileAnimationSystem.AnimateTile(_fogTilemap, cellPosition);
-        _clickAnimation.AnimateTile(cellPosition);
+        _tileClickAnimation.ShakeTile(cellPosition, _fogTilemap);
 
 
         // Réduire le brouillard (chaque clic enlève 1 point par clickPower)
@@ -81,7 +79,7 @@ public class FogManager : MonoBehaviour
         UpdateHealthBar(cellPosition, tileData);
 
         // réduire le total de mana
-        RessourceManager.Instance.Mana -= clickPower;
+        RessourceManager.Instance.DeductResources("Mana", clickPower);
 
         // pop du floatingText qui indique le cout en ressource
         ShowFloatingText(cellPosition, $"-{clickPower} Mana", Color.blue);
@@ -151,29 +149,30 @@ public class FogManager : MonoBehaviour
                 _fogTilemap.SetTile(neighborPos, modifiableTile);
             }
         }
-
-        Vector3Int[] GenerateDirections(int radius)
-        {
-            // List pour stocker les directions générées
-            var directions = new System.Collections.Generic.List<Vector3Int>();
-
-            // Générer les directions autour de la case centrale
-            for (int x = -radius; x <= radius; x++)
-            {
-                for (int y = -radius; y <= radius; y++)
-                {
-                    // On ignore la direction (0,0), c'est la case centrale
-                    if (x == 0 && y == 0) continue;
-
-                    // Ajouter le vecteur direction à la liste
-                    directions.Add(new Vector3Int(x, y, 0));
-                }
-            }
-
-            // Retourner le tableau de directions
-            return directions.ToArray();
-        }
     }
+
+    Vector3Int[] GenerateDirections(int radius)
+    {
+        // List pour stocker les directions générées
+        var directions = new System.Collections.Generic.List<Vector3Int>();
+
+        // Générer les directions autour de la case centrale
+        for (int x = -radius; x <= radius; x++)
+        {
+            for (int y = -radius; y <= radius; y++)
+            {
+                // On ignore la direction (0,0), c'est la case centrale
+                if (x == 0 && y == 0) continue;
+
+                // Ajouter le vecteur direction à la liste
+                directions.Add(new Vector3Int(x, y, 0));
+            }
+        }
+
+        // Retourner le tableau de directions
+        return directions.ToArray();
+    }
+    
 
     void DestroyHealthBar(Vector3Int cellPosition)
     {
