@@ -14,8 +14,10 @@ public class FogManager : MonoBehaviour
     [SerializeField] private int _fogDirectionRadius = 1; // rayon de visibilité du brouillard - 1 par defaut
     [SerializeField] private HealthBarPoolManager _healthBarPoolManager;  // Référence au Pool Manager
     [SerializeField] private GameObject _vfxNewTile; // VFX de revelation d'une tuile
+    [SerializeField] private GameObject captureEffectPrefab; // VFX de capture d'une ville
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private AudioClip _sfxNewTile;
+    [SerializeField] private AudioClip _sfxNewTown;
     [SerializeField] private TileClickAnimation _tileClickAnimation;
     [SerializeField] private GameObject _floatingTextPrefab;
     
@@ -82,7 +84,7 @@ public class FogManager : MonoBehaviour
         ResourceManager.Instance.DeductResources(ResourceType.Mana, clickPower);
 
         // pop du floatingText qui indique le cout en ressource
-        ShowFloatingText(cellPosition, $"-{clickPower} Mana", Color.blue);
+        ShowFloatingText(cellPosition, $"-{clickPower} Mana", Color.cyan);
 
         // Si le brouillard est complètement dissipé, retirer la tuile du FogTilemap
         if (tileData.CurrentFog <= 0)
@@ -97,7 +99,8 @@ public class FogManager : MonoBehaviour
 
     private void ShowFloatingText(Vector3Int cellPosition, string message, Color color)
     {
-        Vector3 worldPosition = _fogTilemap.GetCellCenterWorld(cellPosition);
+        Vector3Int aboveCell = cellPosition + Vector3Int.up;
+        Vector3 worldPosition = _fogTilemap.GetCellCenterWorld(aboveCell);
         GameObject floatingText = Instantiate(_floatingTextPrefab, worldPosition, Quaternion.identity);
         floatingText.GetComponent<FloatingText>().Initialize(message, color);
     }
@@ -211,6 +214,12 @@ public class FogManager : MonoBehaviour
             }
         }
     }
+
+
+
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!  T O   D O : refactorer  !!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     private void RevealTile(Vector3Int cellPosition, TileData tileData)
     {
         _fogTilemap.SetTile(cellPosition, null);
@@ -223,6 +232,16 @@ public class FogManager : MonoBehaviour
         if (tileData.Building != BuildingType.None)
         {
             BuildingManager.Instance.AddBuilding(cellPosition, tileData.Building);
+            if (tileData.Building == BuildingType.Town)
+            {
+                // Jouer l'effet sonore
+                if (_audioSource != null && _sfxNewTown != null)
+                {
+                    _audioSource.PlayOneShot(_sfxNewTown);
+                }
+                Instantiate(captureEffectPrefab, _fogTilemap.GetCellCenterWorld(cellPosition), Quaternion.identity);
+                StartCoroutine(CameraShake());
+            }
         }
             
 
@@ -245,6 +264,27 @@ public class FogManager : MonoBehaviour
 
         // incrémenter le nombre de tuiles decouvertes
         ResourceManager.Instance.Tiles++;       
+    }
+
+    IEnumerator CameraShake()
+    {
+        Vector3 originalPos = _mainCamera.transform.position;
+        float elapsed = 0f;
+        float duration = 0.2f;
+        float magnitude = 0.1f;
+
+        while (elapsed < duration)
+        {
+            float x = Random.Range(-1f, 1f) * magnitude;
+            float y = Random.Range(-1f, 1f) * magnitude;
+
+            _mainCamera.transform.position = new Vector3(originalPos.x + x, originalPos.y + y, originalPos.z);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        _mainCamera.transform.position = originalPos;
     }
 
 
