@@ -57,26 +57,37 @@ public class ResourceManager : MonoBehaviour
 
     public void SetResource(ResourceType type, int value)
     {
-        value = Mathf.Max(0, value);
         switch (type)
         {
             case ResourceType.Mana:
-                _mana = value;
-                OnResourceChanged?.Invoke(ResourceType.Mana, _mana);
+                value = Mathf.Clamp(value, 0, _manaCapacity);
+                SetResourceValue(ref _mana, value, ResourceType.Mana);
                 break;
+
             case ResourceType.Gold:
-                _gold = value;
-                OnResourceChanged?.Invoke(ResourceType.Gold, _gold);
+                value = Mathf.Clamp(value, 0, _goldCapacity);
+                SetResourceValue(ref _gold, value, ResourceType.Gold);
                 break;
+
             case ResourceType.Wood:
-                _wood = value;
-                OnResourceChanged?.Invoke(ResourceType.Wood, _wood);
+                value = Mathf.Clamp(value, 0, _woodCapacity);
+                SetResourceValue(ref _wood, value, ResourceType.Wood);
                 break;
+
             case ResourceType.Stone:
-                _stone = value;
-                OnResourceChanged?.Invoke(ResourceType.Stone, _stone);
+                value = Mathf.Clamp(value, 0, _stoneCapacity);
+                SetResourceValue(ref _stone, value, ResourceType.Stone);
                 break;
         }
+    }
+
+    private void SetResourceValue(ref int resourceField, int value, ResourceType type)
+    {
+        if (resourceField == value)
+            return;
+
+        resourceField = value;
+        OnResourceChanged?.Invoke(type, value);
     }
 
     public float UpdateInterval { get => _updateInterval; set => _updateInterval = Mathf.Max(0.1f, value); }
