@@ -8,6 +8,7 @@ public class TileClickHandler : MonoBehaviour
     public static TileClickHandler Instance { get; private set; }
 
     [SerializeField] private Tilemap _tilemap;
+    [SerializeField] private TileClickAnimation _tileClickAnimation;
 
 
     public static event Action<Vector3Int> OnTileSelected;
@@ -37,6 +38,9 @@ public class TileClickHandler : MonoBehaviour
 
             if (selectedTileData != null)
             {
+
+                _tileClickAnimation.PressTile(cellPosition, _tilemap);
+
                 // Émettre un événement pour dire qu'une tuile a été sélectionnée
                 OnTileSelected?.Invoke(cellPosition);
             }
