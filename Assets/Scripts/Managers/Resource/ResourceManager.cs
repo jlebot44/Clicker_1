@@ -216,7 +216,10 @@ public class ResourceManager : MonoBehaviour
                     newManaPerTurn += building.Value.ProductionPerTurn;
                     break;
                 case BuildingType.Town:
-                    newGoldPerTurn += building.Value.ProductionPerTurn;
+                    newGoldPerTurn += building.Value.ProductionPerTurn * building.Value.Level;
+                    break;
+                case BuildingType.Capital:
+                    newGoldPerTurn += building.Value.ProductionPerTurn * building.Value.Level;
                     break;
                 case BuildingType.Lumberjack:
                     newWoodPerTurn += building.Value.ProductionPerTurn;
@@ -273,6 +276,9 @@ public class ResourceManager : MonoBehaviour
                     newManaCapacity += _capacityPerManaPile;
                     break;
                 case BuildingType.Town:
+                    newGoldCapacity += _capacityPerGoldPile;
+                    break;
+                case BuildingType.Capital:
                     newGoldCapacity += _capacityPerGoldPile;
                     break;
                 case BuildingType.WoodPile:

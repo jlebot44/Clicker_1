@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using NUnit.Framework.Constraints;
 
 
 public class TileInfoUI : MonoBehaviour
@@ -11,7 +12,9 @@ public class TileInfoUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _tileInfoGroundTMP;
     [SerializeField] private TextMeshProUGUI _tileInfoReliefTMP;
     [SerializeField] private TextMeshProUGUI _tileInfoBuildingTMP;
+    [SerializeField] private TextMeshProUGUI _tileInfoBuildingLevelTMP;
     [SerializeField] private TextMeshProUGUI _tileInfoIsConnectedTMP;
+
 
 
 
@@ -35,11 +38,21 @@ public class TileInfoUI : MonoBehaviour
             ShowUI(false);
             return;
         }
+        string buildingLevel = "None";        
+
+        if ( tileData.Building == BuildingType.Town || tileData.Building == BuildingType.Capital)
+        {
+            BuildingData buildingData = BuildingManager.Instance.GetBuildingData(cellPposition);
+            buildingLevel = buildingData.Level.ToString();                
+        }
+
+
         
         _tileInfoPositionTMP.text = $"Position: {cellPposition}\n";
         _tileInfoGroundTMP.text = $"Terrain: {tileData.Ground}\n";
         _tileInfoReliefTMP.text = $"Relief: {tileData.Relief}\n";
         _tileInfoBuildingTMP.text = $"Bâtiment: {tileData.Building}";
+        _tileInfoBuildingLevelTMP.text = $"Niveau : {buildingLevel}";
         _tileInfoIsConnectedTMP.text = $"Liaison Capital: {tileData.IsConnectedToCapital}";
 
 

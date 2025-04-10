@@ -193,6 +193,7 @@ public class FogManager : MonoBehaviour
     {
         _fogTilemap.SetTile(cellPosition, null);
         ReduceNeighbourFog(cellPosition);
+        StartCoroutine(_cameraEffectManager.Shake(_mainCamera, 0.1f, 0.06f));
     }
 
     private void ClaimTile(TileData tileData)

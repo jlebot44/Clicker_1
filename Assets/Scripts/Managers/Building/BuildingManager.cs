@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.IO.IsolatedStorage;
 using System.Linq;
-using System.Resources;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
+
 
 public class BuildingManager : MonoBehaviour
 {
@@ -17,7 +14,10 @@ public class BuildingManager : MonoBehaviour
     readonly Vector3Int[] directions = { Vector3Int.up, Vector3Int.down, Vector3Int.left, Vector3Int.right };
 
     // Liste des coûts de construction pour chaque bâtiment
-    public List<BuildingCostData> buildingCostsList;
+    [SerializeField] private List<BuildingCostData> buildingCostsList;
+
+    // liste des coûts pour l'évolution des batiments
+    [SerializeField] private List<BuildingUpgradeData> upgradeDataList;
 
 
 
@@ -41,49 +41,14 @@ public class BuildingManager : MonoBehaviour
 
     private void Start()
     {
-        AddBuilding(Vector3Int.zero, BuildingType.Town);
+        AddBuilding(Vector3Int.zero, BuildingType.Capital);
     }
 
-    // Retourne les constructions disponibles
-    //public List<string> GetAvailableConstructions(Vector3Int cellPosition)
-    //{
-    //    List<string> options = new List<string>();
+    public BuildingData GetBuildingData(Vector3Int cellPosition)
+    {
+        return _buildingsDataMap.ContainsKey(cellPosition) ? _buildingsDataMap[cellPosition] : null;
+    }
 
-    //    // Pré-calcul des conditions
-    //    bool isGrass = TileManager.Instance.isTargetGroundOnTile(cellPosition, GroundType.Grass);
-    //    bool isMountain = TileManager.Instance.isTargetReliefOnTile(cellPosition, ReliefType.Mountain);
-    //    bool noRelief = TileManager.Instance.isTargetReliefOnTile(cellPosition, ReliefType.None);
-    //    bool hasAdjacentRoadOrTown = directions.Any(dir => TileManager.Instance.IsRoadOrTown(cellPosition + dir, true));
-    //    bool hasAdjacentWood = directions.Any(dir => TileManager.Instance.isTargetReliefOnTile(cellPosition + dir, ReliefType.Wood));
-    //    bool hasAdjacentMountain = directions.Any(dir => TileManager.Instance.isTargetReliefOnTile(cellPosition + dir, ReliefType.Mountain));
-
-    //    if (TileManager.Instance.GetTileData(cellPosition) != null)
-    //    {
-    //        if (TileManager.Instance.isTargetBuildingOnTile(cellPosition, BuildingType.None))
-    //        {
-    //            // Ajout des constructions possibles
-    //            if (isGrass && noRelief && hasAdjacentRoadOrTown)
-    //                options.Add(BuildingType.Road.ToString());
-    //            if (isGrass && noRelief && hasAdjacentWood && hasAdjacentRoadOrTown)
-    //                options.Add(BuildingType.Lumberjack.ToString());
-    //            if (isGrass && noRelief)
-    //                options.Add(BuildingType.Temple.ToString());
-    //            if (isGrass && isMountain && hasAdjacentRoadOrTown)
-    //                options.Add(BuildingType.StoneMine.ToString());
-    //            if (isGrass && noRelief)
-    //                options.Add(BuildingType.StonePile.ToString());
-    //            if (isGrass && noRelief)
-    //                options.Add(BuildingType.WoodPile.ToString());
-    //            if (isGrass && noRelief)
-    //                options.Add(BuildingType.ManaPile.ToString());
-    //        }
-    //        else
-    //        {
-    //            options.Add(BuildingType.None.ToString()); // Utilisation de l'énumération pour "destroy"
-    //        }
-    //    }
-    //    return options;
-    //}
 
     // Logique de construction
     public void Build(BuildingType construction, Vector3Int cellPosition)
@@ -222,5 +187,77 @@ public class BuildingManager : MonoBehaviour
         }
     }
 
+    public bool HasEnoughResourcesToEvol(BuildingUpgradeData upgradeData)
+    {
+        foreach (var cost in upgradeData.upgradeCosts)
+        {
+            if (!ResourceManager.Instance.HasEnoughResources(cost.resourceType, cost.amount))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 
+    public void DeductResourcesForEvol(BuildingUpgradeData upgradeData)
+    {
+        foreach (var cost in upgradeData.upgradeCosts)
+        {
+            ResourceManager.Instance.DeductResources(cost.resourceType, cost.amount);
+        }
+    }
+
+    public void UpgradeBuilding(Vector3Int position)
+    {
+        if (!_buildingsDataMap.ContainsKey(position)) return;
+
+        BuildingData data = _buildingsDataMap[position];
+        TileData tiledata = TileManager.Instance.GetTileData(position);
+
+        // verification du niveau de la capital. Niveau ville max = Niveau capital - 1
+        if (data.Type == BuildingType.Town)
+        {
+            int capitalLevel = GetCapitalLevel();
+            if (data.Level + 1 >= capitalLevel)
+            {
+                Debug.Log("Le niveau de la ville ne peut pas dépasser celui de la capitale.");
+                return;
+            }
+            
+        }
+
+        BuildingUpgradeData upgradeData = upgradeDataList.Find(u =>
+            u.buildingType == data.Type && u.level == data.Level + 1);
+
+        if (upgradeData == null)
+        {
+            Debug.Log($"Pas d'amélioration dispo pour {data.Type} au niveau {data.Level + 1}.");
+            return;
+        }
+
+        if (!HasEnoughResourcesToEvol(upgradeData))
+        {
+            Debug.Log("Pas assez de ressources.");
+            return;
+        }
+
+        DeductResourcesForEvol(upgradeData); 
+        data.Level++;
+
+        ResourceManager.Instance.CalculResources();
+
+        Debug.Log($"Bâtiment {data.Type} évolué au niveau {data.Level}");
+    }
+
+    public int GetCapitalLevel()
+    {
+        if (_buildingsDataMap.TryGetValue(Vector3Int.zero, out BuildingData capitalData) &&
+            capitalData.Type == BuildingType.Capital)
+        {
+            return capitalData.Level;
+        }
+
+        Debug.LogWarning("La capitale n'a pas été trouvée à la position (0,0).");
+        return 1; // Valeur de secours
+    }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.Tilemaps;
 
 public class TileManager : MonoBehaviour
@@ -148,6 +149,7 @@ public class TileManager : MonoBehaviour
 
         //  ---- compléter ici en fonction des types de batiments ----
         if (tileName.Contains("town")) return BuildingType.Town;
+        if (tileName.Contains("capital")) return BuildingType.Capital;
         return BuildingType.Other; // Si le nom ne correspond à rien
     }
 
@@ -251,9 +253,9 @@ public class TileManager : MonoBehaviour
     {
         TileData tileData = GetTileData(position);
         if (!requiredIsConnectedToCapital)
-            return tileData != null && (tileData.Building == BuildingType.Road || tileData.Building == BuildingType.Town) && tileData.IsClaimed;
+            return tileData != null && (tileData.Building == BuildingType.Road || tileData.Building == BuildingType.Town || tileData.Building == BuildingType.Capital) && tileData.IsClaimed;
         else
-            return tileData != null && (tileData.Building == BuildingType.Road || tileData.Building == BuildingType.Town) && (tileData.IsConnectedToCapital) && tileData.IsClaimed;
+            return tileData != null && (tileData.Building == BuildingType.Road || tileData.Building == BuildingType.Town || tileData.Building == BuildingType.Capital) && (tileData.IsConnectedToCapital) && tileData.IsClaimed;
      }
 
     public bool isTargetReliefOnTile(Vector3Int position, ReliefType relief)
@@ -294,7 +296,7 @@ public class TileManager : MonoBehaviour
             if (neighborTile != null)
             {
                 // Vérifier si c'est une route ou une ville
-                if ((neighborTile.Building == BuildingType.Road || neighborTile.Building == BuildingType.Town))
+                if ((neighborTile.Building == BuildingType.Road || neighborTile.Building == BuildingType.Town || neighborTile.Building == BuildingType.Capital))
                 {
                     // Mettre à jour la configuration binaire
                     roadConfig |= GetBinaryMask(direction);
@@ -306,7 +308,7 @@ public class TileManager : MonoBehaviour
         }
 
         // Ne pas modifier une ville existante
-        if (TileDataMap.ContainsKey(position) && TileDataMap[position].Building == BuildingType.Town)
+        if (TileDataMap.ContainsKey(position) && TileDataMap[position].Building == BuildingType.Town || TileDataMap[position].Building == BuildingType.Capital)
             return;
 
         // Trouver la bonne tuile de route

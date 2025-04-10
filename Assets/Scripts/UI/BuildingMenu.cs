@@ -10,26 +10,31 @@ public class BuildingMenu : MonoBehaviour
     [SerializeField] private GameObject _buildingPanel;
     [SerializeField] private Button _buildingButtonPrefab;
 
+    // Stockage des boutons générés
     private List<Button> _buildingButtons = new List<Button>();
 
-    private Button _activeButton;
+    // Références pour gestion directe
+    private Button _destroyButton;
+    private Button _cancelButton;
 
+    // Mapping entre BuildingType et bouton correspondant
     private Dictionary<BuildingType, Button> _buttonMap = new Dictionary<BuildingType, Button>();
 
     private void Start()
     {
-        GenerateButtons();
+        GenerateConstructionButtons();
+        GenerateSpecialButtons();
     }
 
-    // Génère une fois tous les boutons de bâtiment au démarrage
-    private void GenerateButtons()
+    // Génère les boutons pour les types de bâtiment constructibles
+    private void GenerateConstructionButtons()
     {
         BuildingType[] allBuildings = (BuildingType[])Enum.GetValues(typeof(BuildingType));
 
         foreach (BuildingType type in allBuildings)
         {
-            if (type == BuildingType.None || type == BuildingType.Other)
-                continue; // On ignore les types invalides
+            if (type == BuildingType.None || type == BuildingType.Other || type == BuildingType.Town || type == BuildingType.Capital)
+                continue;
 
             Button button = Instantiate(_buildingButtonPrefab, _buildingPanel.transform);
             button.GetComponentInChildren<TextMeshProUGUI>().text = type.ToString();
@@ -38,12 +43,22 @@ public class BuildingMenu : MonoBehaviour
             _buildingButtons.Add(button);
             _buttonMap[type] = button;
         }
+    }
 
-        // Bouton Annuler
-        Button cancelButton = Instantiate(_buildingButtonPrefab, _buildingPanel.transform);
-        cancelButton.GetComponentInChildren<TextMeshProUGUI>().text = "Annuler";
-        cancelButton.onClick.AddListener(OnCancelClicked);
-        _buildingButtons.Add(cancelButton);
+    // Génère les boutons spéciaux : Annuler et Détruire
+    private void GenerateSpecialButtons()
+    {
+        // Annuler
+        _cancelButton = Instantiate(_buildingButtonPrefab, _buildingPanel.transform);
+        _cancelButton.GetComponentInChildren<TextMeshProUGUI>().text = "Annuler";
+        _cancelButton.onClick.AddListener(OnCancelClicked);
+        _buildingButtons.Add(_cancelButton);
+
+        // Détruire
+        _destroyButton = Instantiate(_buildingButtonPrefab, _buildingPanel.transform);
+        _destroyButton.GetComponentInChildren<TextMeshProUGUI>().text = "Détruire";
+        _destroyButton.onClick.AddListener(OnDestroyClicked);
+        _buildingButtons.Add(_destroyButton);
     }
 
     private void OnConstructionSelected(BuildingType buildingType)
@@ -52,38 +67,44 @@ public class BuildingMenu : MonoBehaviour
         HighlightSelectedButton(buildingType);
     }
 
-    private void UpdateButtonHighlight(string selectedName)
+    private void OnDestroyClicked()
     {
-        foreach (var button in _buildingButtons)
-        {
-            bool isActive = button.GetComponentInChildren<TextMeshProUGUI>().text == selectedName;
-
-            ColorBlock colors = button.colors;
-            colors.normalColor = isActive ? Color.green : Color.white;  // Surbrillance verte
-            button.colors = colors;
-
-            // Tu peux aussi modifier le texte, la taille ou ajouter une icône ici
-        }
-    }
-
-    private void HighlightSelectedButton(BuildingType selected)
-    {
-        foreach (var pair in _buttonMap)
-        {
-            Button button = pair.Value;
-            Image image = button.GetComponent<Image>();
-
-            if (image != null)
-            {
-                image.color = pair.Key == selected ? Color.green : Color.white;
-            }
-        }
+        BuildModeManager.Instance.EnterBuildMode(BuildingType.None);
+        HighlightSelectedButton(BuildingType.None);
     }
 
     private void OnCancelClicked()
     {
         BuildModeManager.Instance.CancelBuildMode();
-        HighlightSelectedButton(BuildingType.None); // désélectionne tout
+        ResetAllHighlights();
+    }
+
+    private void HighlightSelectedButton(BuildingType selected)
+    {
+        ResetAllHighlights();
+
+        // Boutons normaux
+        if (_buttonMap.TryGetValue(selected, out Button selectedButton))
+        {
+            var image = selectedButton.GetComponent<Image>();
+            if (image != null) image.color = Color.green;
+        }
+
+        // Détruire (mode spécial = BuildingType.None)
+        if (selected == BuildingType.None && BuildModeManager.Instance.IsInBuildMode)
+        {
+            var image = _destroyButton.GetComponent<Image>();
+            if (image != null) image.color = Color.green;
+        }
+    }
+
+    private void ResetAllHighlights()
+    {
+        foreach (var button in _buildingButtons)
+        {
+            var img = button.GetComponent<Image>();
+            if (img != null) img.color = Color.white;
+        }
     }
 
     public void ShowUI(bool show)
