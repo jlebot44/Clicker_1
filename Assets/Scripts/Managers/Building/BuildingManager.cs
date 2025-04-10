@@ -45,45 +45,45 @@ public class BuildingManager : MonoBehaviour
     }
 
     // Retourne les constructions disponibles
-    public List<string> GetAvailableConstructions(Vector3Int cellPosition)
-    {
-        List<string> options = new List<string>();
+    //public List<string> GetAvailableConstructions(Vector3Int cellPosition)
+    //{
+    //    List<string> options = new List<string>();
 
-        // Pré-calcul des conditions
-        bool isGrass = TileManager.Instance.isTargetGroundOnTile(cellPosition, GroundType.Grass);
-        bool isMountain = TileManager.Instance.isTargetReliefOnTile(cellPosition, ReliefType.Mountain);
-        bool noRelief = TileManager.Instance.isTargetReliefOnTile(cellPosition, ReliefType.None);
-        bool hasAdjacentRoadOrTown = directions.Any(dir => TileManager.Instance.IsRoadOrTown(cellPosition + dir, true));
-        bool hasAdjacentWood = directions.Any(dir => TileManager.Instance.isTargetReliefOnTile(cellPosition + dir, ReliefType.Wood));
-        bool hasAdjacentMountain = directions.Any(dir => TileManager.Instance.isTargetReliefOnTile(cellPosition + dir, ReliefType.Mountain));
+    //    // Pré-calcul des conditions
+    //    bool isGrass = TileManager.Instance.isTargetGroundOnTile(cellPosition, GroundType.Grass);
+    //    bool isMountain = TileManager.Instance.isTargetReliefOnTile(cellPosition, ReliefType.Mountain);
+    //    bool noRelief = TileManager.Instance.isTargetReliefOnTile(cellPosition, ReliefType.None);
+    //    bool hasAdjacentRoadOrTown = directions.Any(dir => TileManager.Instance.IsRoadOrTown(cellPosition + dir, true));
+    //    bool hasAdjacentWood = directions.Any(dir => TileManager.Instance.isTargetReliefOnTile(cellPosition + dir, ReliefType.Wood));
+    //    bool hasAdjacentMountain = directions.Any(dir => TileManager.Instance.isTargetReliefOnTile(cellPosition + dir, ReliefType.Mountain));
 
-        if (TileManager.Instance.GetTileData(cellPosition) != null)
-        {
-            if (TileManager.Instance.isTargetBuildingOnTile(cellPosition, BuildingType.None))
-            {
-                // Ajout des constructions possibles
-                if (isGrass && noRelief && hasAdjacentRoadOrTown)
-                    options.Add(BuildingType.Road.ToString());
-                if (isGrass && noRelief && hasAdjacentWood && hasAdjacentRoadOrTown)
-                    options.Add(BuildingType.Lumberjack.ToString());
-                if (isGrass && noRelief)
-                    options.Add(BuildingType.Temple.ToString());
-                if (isGrass && isMountain && hasAdjacentRoadOrTown)
-                    options.Add(BuildingType.StoneMine.ToString());
-                if (isGrass && noRelief)
-                    options.Add(BuildingType.StonePile.ToString());
-                if (isGrass && noRelief)
-                    options.Add(BuildingType.WoodPile.ToString());
-                if (isGrass && noRelief)
-                    options.Add(BuildingType.ManaPile.ToString());
-            }
-            else
-            {
-                options.Add(BuildingType.None.ToString()); // Utilisation de l'énumération pour "destroy"
-            }
-        }
-        return options;
-    }
+    //    if (TileManager.Instance.GetTileData(cellPosition) != null)
+    //    {
+    //        if (TileManager.Instance.isTargetBuildingOnTile(cellPosition, BuildingType.None))
+    //        {
+    //            // Ajout des constructions possibles
+    //            if (isGrass && noRelief && hasAdjacentRoadOrTown)
+    //                options.Add(BuildingType.Road.ToString());
+    //            if (isGrass && noRelief && hasAdjacentWood && hasAdjacentRoadOrTown)
+    //                options.Add(BuildingType.Lumberjack.ToString());
+    //            if (isGrass && noRelief)
+    //                options.Add(BuildingType.Temple.ToString());
+    //            if (isGrass && isMountain && hasAdjacentRoadOrTown)
+    //                options.Add(BuildingType.StoneMine.ToString());
+    //            if (isGrass && noRelief)
+    //                options.Add(BuildingType.StonePile.ToString());
+    //            if (isGrass && noRelief)
+    //                options.Add(BuildingType.WoodPile.ToString());
+    //            if (isGrass && noRelief)
+    //                options.Add(BuildingType.ManaPile.ToString());
+    //        }
+    //        else
+    //        {
+    //            options.Add(BuildingType.None.ToString()); // Utilisation de l'énumération pour "destroy"
+    //        }
+    //    }
+    //    return options;
+    //}
 
     // Logique de construction
     public void Build(BuildingType construction, Vector3Int cellPosition)
@@ -181,4 +181,46 @@ public class BuildingManager : MonoBehaviour
             ResourceManager.Instance.DeductResources(resourceCost.resourceType, resourceCost.amount);
         }
     }
+
+
+    public bool CanBuild(BuildingType type, Vector3Int cellPosition)
+    {
+        TileData tile = TileManager.Instance.GetTileData(cellPosition);
+        if (tile == null || tile.Building != BuildingType.None || !tile.IsClaimed)
+            return false;
+
+        // Pré-calculs de conditions
+        bool isGrass = TileManager.Instance.isTargetGroundOnTile(cellPosition, GroundType.Grass);
+        bool isMountain = TileManager.Instance.isTargetReliefOnTile(cellPosition, ReliefType.Mountain);
+        bool noRelief = TileManager.Instance.isTargetReliefOnTile(cellPosition, ReliefType.None);
+        bool hasAdjacentRoadOrTown = directions.Any(dir => TileManager.Instance.IsRoadOrTown(cellPosition + dir, true));
+        bool hasAdjacentWood = directions.Any(dir => TileManager.Instance.isTargetReliefOnTile(cellPosition + dir, ReliefType.Wood));
+        bool hasAdjacentMountain = directions.Any(dir => TileManager.Instance.isTargetReliefOnTile(cellPosition + dir, ReliefType.Mountain));
+
+        // Règles de construction selon le type
+        switch (type)
+        {
+            case BuildingType.Road:
+                return isGrass && noRelief && hasAdjacentRoadOrTown;
+
+            case BuildingType.Lumberjack:
+                return isGrass && noRelief && hasAdjacentWood && hasAdjacentRoadOrTown;
+
+            case BuildingType.Temple:
+                return isGrass && noRelief;
+
+            case BuildingType.StoneMine:
+                return isGrass && isMountain && hasAdjacentRoadOrTown;
+
+            case BuildingType.StonePile:
+            case BuildingType.WoodPile:
+            case BuildingType.ManaPile:
+                return isGrass && noRelief;
+
+            default:
+                return false;
+        }
+    }
+
+
 }

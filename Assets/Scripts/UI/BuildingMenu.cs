@@ -1,92 +1,93 @@
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class BuildingMenu : MonoBehaviour
 {
+    [Header("UI References")]
     [SerializeField] private GameObject _buildingPanel;
     [SerializeField] private Button _buildingButtonPrefab;
 
-
     private List<Button> _buildingButtons = new List<Button>();
 
+    private Button _activeButton;
 
-    private void Awake()
+    private Dictionary<BuildingType, Button> _buttonMap = new Dictionary<BuildingType, Button>();
+
+    private void Start()
     {
-        TileClickHandler.OnTileSelected += UpdateConstructionOptions;
-        //BuildingManager.OnBuildingConstructed += CloseUI;
+        GenerateButtons();
     }
 
-    private void OnDestroy()
+    // Génère une fois tous les boutons de bâtiment au démarrage
+    private void GenerateButtons()
     {
-        TileClickHandler.OnTileSelected -= UpdateConstructionOptions;
-        //BuildingManager.OnBuildingConstructed -= CloseUI;
-    }
+        BuildingType[] allBuildings = (BuildingType[])Enum.GetValues(typeof(BuildingType));
 
-
-    private void UpdateConstructionOptions(Vector3Int cellPosition)
-    {
-        TileData tileData = TileManager.Instance.GetTileData(cellPosition);
-        if (tileData == null || !tileData.IsClaimed)
+        foreach (BuildingType type in allBuildings)
         {
-            ShowUI(false);
-            return;
+            if (type == BuildingType.None || type == BuildingType.Other)
+                continue; // On ignore les types invalides
+
+            Button button = Instantiate(_buildingButtonPrefab, _buildingPanel.transform);
+            button.GetComponentInChildren<TextMeshProUGUI>().text = type.ToString();
+
+            button.onClick.AddListener(() => OnConstructionSelected(type));
+            _buildingButtons.Add(button);
+            _buttonMap[type] = button;
         }
 
-        // Désactiver les anciens boutons au lieu de les détruire
+        // Bouton Annuler
+        Button cancelButton = Instantiate(_buildingButtonPrefab, _buildingPanel.transform);
+        cancelButton.GetComponentInChildren<TextMeshProUGUI>().text = "Annuler";
+        cancelButton.onClick.AddListener(OnCancelClicked);
+        _buildingButtons.Add(cancelButton);
+    }
+
+    private void OnConstructionSelected(BuildingType buildingType)
+    {
+        BuildModeManager.Instance.EnterBuildMode(buildingType);
+        HighlightSelectedButton(buildingType);
+    }
+
+    private void UpdateButtonHighlight(string selectedName)
+    {
         foreach (var button in _buildingButtons)
         {
-            button.gameObject.SetActive(false);
+            bool isActive = button.GetComponentInChildren<TextMeshProUGUI>().text == selectedName;
+
+            ColorBlock colors = button.colors;
+            colors.normalColor = isActive ? Color.green : Color.white;  // Surbrillance verte
+            button.colors = colors;
+
+            // Tu peux aussi modifier le texte, la taille ou ajouter une icône ici
         }
-
-        List<string> availableConstructions = BuildingManager.Instance.GetAvailableConstructions(cellPosition);
-
-        for (int i = 0; i < availableConstructions.Count; i++)
-        {
-            Button button;
-            if (i < _buildingButtons.Count)
-            {
-                button = _buildingButtons[i]; // Réutiliser un bouton existant
-                button.gameObject.SetActive(true);
-            }
-            else
-            {
-                button = Instantiate(_buildingButtonPrefab, _buildingPanel.transform);
-                _buildingButtons.Add(button);
-            }
-
-            string constructionName = availableConstructions[i]; // Copie locale pour éviter le problème de capture de variable
-            button.GetComponentInChildren<TextMeshProUGUI>().text = constructionName;
-            button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => OnConstructionSelected(constructionName, cellPosition));
-        }
-
-        _buildingPanel.SetActive(availableConstructions.Count > 0);
     }
 
-    private void OnConstructionSelected(string construction, Vector3Int position)
+    private void HighlightSelectedButton(BuildingType selected)
     {
-        // Convertir la chaîne en BuildingType
-        if (Enum.TryParse(construction, out BuildingType buildingType))
+        foreach (var pair in _buttonMap)
         {
-            BuildingManager.Instance.Build(buildingType, position);
-        }
-        else
-        {
-            Debug.LogWarning($"Construction inconnue: {construction}");
-        }
-        _buildingPanel.SetActive(false);
+            Button button = pair.Value;
+            Image image = button.GetComponent<Image>();
 
+            if (image != null)
+            {
+                image.color = pair.Key == selected ? Color.green : Color.white;
+            }
+        }
     }
 
-
-
-    private void ShowUI(bool showInfo)
+    private void OnCancelClicked()
     {
-        _buildingPanel.SetActive(showInfo);
+        BuildModeManager.Instance.CancelBuildMode();
+        HighlightSelectedButton(BuildingType.None); // désélectionne tout
     }
 
-
+    public void ShowUI(bool show)
+    {
+        _buildingPanel.SetActive(show);
+    }
 }

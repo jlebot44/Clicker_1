@@ -36,14 +36,34 @@ public class TileClickHandler : MonoBehaviour
 
             TileData selectedTileData = TileManager.Instance.GetTileData(cellPosition);
 
-            if (selectedTileData != null)
+            if (selectedTileData == null) return;
+
+            _tileClickAnimation.PressTile(cellPosition, _tilemap);
+
+            if (BuildModeManager.Instance.IsInBuildMode)
             {
-
-                _tileClickAnimation.PressTile(cellPosition, _tilemap);
-
-                // Émettre un événement pour dire qu'une tuile a été sélectionnée
+                TryBuildAt(cellPosition);
+            }
+            else
+            {
                 OnTileSelected?.Invoke(cellPosition);
             }
+        }
+    }
+
+    private void TryBuildAt(Vector3Int cellPosition)
+    {
+        BuildingType selected = BuildModeManager.Instance.SelectedBuilding;
+        if (selected == BuildingType.None) return;
+
+        if (BuildingManager.Instance.CanBuild(selected, cellPosition))
+        {
+            BuildingManager.Instance.Build(selected, cellPosition);
+            //BuildModeManager.Instance.CancelBuildMode();
+        }
+        else
+        {
+            Debug.Log("Impossible de construire ici !");
         }
     }
 }
