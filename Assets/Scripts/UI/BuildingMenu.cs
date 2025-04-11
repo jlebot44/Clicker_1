@@ -9,6 +9,7 @@ public class BuildingMenu : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private GameObject _buildingPanel;
     [SerializeField] private Button _buildingButtonPrefab;
+    [SerializeField] private BuildingInfoPanelController _infoPanel;
 
     // Stockage des boutons générés
     private List<Button> _buildingButtons = new List<Button>();
@@ -65,18 +66,21 @@ public class BuildingMenu : MonoBehaviour
     {
         BuildModeManager.Instance.EnterBuildMode(buildingType);
         HighlightSelectedButton(buildingType);
+        _infoPanel.Show(buildingType);
     }
 
     private void OnDestroyClicked()
     {
         BuildModeManager.Instance.EnterBuildMode(BuildingType.None);
         HighlightSelectedButton(BuildingType.None);
+        _infoPanel.Hide();
     }
 
     private void OnCancelClicked()
     {
         BuildModeManager.Instance.CancelBuildMode();
         ResetAllHighlights();
+        _infoPanel.Hide();
     }
 
     private void HighlightSelectedButton(BuildingType selected)

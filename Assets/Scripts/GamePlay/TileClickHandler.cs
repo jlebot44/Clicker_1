@@ -102,14 +102,19 @@ public class TileClickHandler : MonoBehaviour
     private void ShowEvolvePanel(Vector3Int cellPos)
     {
         if (currentEvolvePanel != null)
-            Destroy(currentEvolvePanel.gameObject); // clean s'il y en a un déjà
+            Destroy(currentEvolvePanel.gameObject);
 
-        Vector3Int worldPos = cellPos + Vector3Int.up;
         currentEvolvePanel = Instantiate(evolvePanelPrefab);
-        currentEvolvePanel.Show(worldPos, transform, () =>
+
+        // 1. Appel avec la vraie position logique
+        currentEvolvePanel.Show(cellPos, transform, () =>
         {
             BuildingManager.Instance.UpgradeBuilding(cellPos);
         });
+
+        // 2. Positionnement visuel du panneau légèrement au-dessus
+        currentEvolvePanel.transform.position =
+            TileManager.Instance.BuildingTilemap.GetCellCenterWorld(cellPos) + Vector3.up * 2.5f;
     }
 
     private void HideEvolvePanel()

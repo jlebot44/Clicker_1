@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ae643a56822bee41aa7f6c1b80fb163, type: 3}
   m_Name: StonePileCost
   m_EditorClassIdentifier: 
-  buildingType: 7
+  buildingType: 8
   resourceCosts:
-  - resourceName: Gold
+  - resourceType: 0
     amount: 1

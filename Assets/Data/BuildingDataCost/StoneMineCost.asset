@@ -12,7 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ae643a56822bee41aa7f6c1b80fb163, type: 3}
   m_Name: StoneMineCost
   m_EditorClassIdentifier: 
-  buildingType: 5
+  buildingType: 6
   resourceCosts:
-  - resourceName: Gold
+  - resourceType: 0
+    amount: 1
+  - resourceType: 1
+    amount: 1
+  - resourceType: 3
     amount: 1

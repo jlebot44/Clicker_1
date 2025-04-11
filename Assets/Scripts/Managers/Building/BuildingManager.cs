@@ -114,11 +114,20 @@ public class BuildingManager : MonoBehaviour
     }
 
     // Obtient les données de coût pour un bâtiment donné
-    private BuildingCostData GetBuildingCostData(BuildingType buildingType)
+    public BuildingCostData GetBuildingCostData(BuildingType buildingType)
     {
         // Recherche dans une liste ou base de données des coûts pour chaque type de bâtiment
         return buildingCostsList.Find(cost => cost.buildingType == buildingType);
+
     }
+
+    public BuildingUpgradeData GetUpgradeData(BuildingType buildingType, int targetLevel)
+    {
+        return upgradeDataList.Find(upgrade =>
+            upgrade.buildingType == buildingType && upgrade.level == targetLevel);
+    }
+
+
 
 
     // Vérifie si les ressources sont suffisantes
@@ -260,4 +269,6 @@ public class BuildingManager : MonoBehaviour
         Debug.LogWarning("La capitale n'a pas été trouvée à la position (0,0).");
         return 1; // Valeur de secours
     }
+
+
 }
