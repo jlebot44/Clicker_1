@@ -74,7 +74,6 @@ public class TileClickHandler : MonoBehaviour
         if (BuildingManager.Instance.CanBuild(selected, cellPosition))
         {
             BuildingManager.Instance.Build(selected, cellPosition);
-            //BuildModeManager.Instance.CancelBuildMode();
         }
         else
         {

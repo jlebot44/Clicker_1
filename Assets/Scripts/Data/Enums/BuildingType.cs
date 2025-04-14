@@ -10,6 +10,7 @@ public enum BuildingType
     WoodPile,
     StonePile,
     ManaPile,
+    BonusShrine, // non constructible : pour les bonus
     Other // si erreur
 
 }

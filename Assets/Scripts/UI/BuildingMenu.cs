@@ -34,7 +34,7 @@ public class BuildingMenu : MonoBehaviour
 
         foreach (BuildingType type in allBuildings)
         {
-            if (type == BuildingType.None || type == BuildingType.Other || type == BuildingType.Town || type == BuildingType.Capital)
+            if (type == BuildingType.None || type == BuildingType.Other || type == BuildingType.Town || type == BuildingType.Capital || type == BuildingType.BonusShrine)
                 continue;
 
             Button button = Instantiate(_buildingButtonPrefab, _buildingPanel.transform);

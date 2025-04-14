@@ -9,6 +9,8 @@ using UnityEngine.UIElements;
 
 public class FogManager : MonoBehaviour
 {
+    public static FogManager Instance { get; private set; }  // patern singleton
+
     [SerializeField] private Tilemap _fogTilemap; // Tilemap du brouillard
     [SerializeField] private Camera _mainCamera; // Caméra principale
     [SerializeField] private int _fogDirectionRadius = 1; // rayon de visibilité du brouillard - 1 par defaut
@@ -18,9 +20,25 @@ public class FogManager : MonoBehaviour
     [SerializeField] private TileClickAnimation _tileClickAnimation;
     [SerializeField] private GameObject _floatingTextPrefab;
     [SerializeField] private FogHealthBarController _healthBarController;
+    [SerializeField] private ShrinePlacer _shrinePlacer;
 
 
     [SerializeField] private int clickPower = 1; // puissance du clic - cout en mana du clic
+
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Debug.LogWarning("FogManager déjà existant ! Suppression de l'instance en double.");
+            Destroy(gameObject);
+            return;
+        }
+    }
 
 
     private void OnEnable()
@@ -118,7 +136,7 @@ public class FogManager : MonoBehaviour
             Vector3Int neighborPos = cellPosition + dir;
             TileData neighborTile = TileManager.Instance.GetTileData(neighborPos);
 
-            if (neighborTile != null && neighborTile.CurrentFog == 0)
+            if (neighborTile != null && neighborTile.CurrentFog <= 0)
             {
                 return true; // Il y a une case adjacente sans brouillard
             }
@@ -203,9 +221,33 @@ public class FogManager : MonoBehaviour
 
     private void HandleBuildingReveal(Vector3Int cellPosition, TileData tileData)
     {
-        if (tileData.Building == BuildingType.None) return;
+        if (tileData.Building == BuildingType.None)
+            return;
 
-        BuildingManager.Instance.AddBuilding(cellPosition, tileData.Building);
+        if (tileData.Building == BuildingType.BonusShrine)
+        {
+            Debug.Log("Shrine révélé !");
+
+            // Récupérer le ShrineBonusData via le ShrinePlacer
+            ShrineBonusData bonusData = _shrinePlacer.FindBonusDataAtPosition(cellPosition);
+            if (bonusData != null)
+            {
+                BuildingManager.Instance.AddShrineBuilding(cellPosition, bonusData);
+                ShrineBonusManager.Instance.RegisterBonus(bonusData);
+            }
+            else
+            {
+                Debug.LogWarning($"Aucun ShrineBonusData trouvé pour la position {cellPosition}");
+                // On fallback sur une construction standard si nécessaire
+                BuildingManager.Instance.AddBuilding(cellPosition, tileData.Building);
+            }
+        }
+        else
+        {
+            BuildingManager.Instance.AddBuilding(cellPosition, tileData.Building);
+        }
+
+        // Actions spécifiques pour une ville révélée
         if (tileData.Building == BuildingType.Town)
         {
             _fogEffectManager.PlayTownRevealSFX();
@@ -214,6 +256,10 @@ public class FogManager : MonoBehaviour
             ResourceManager.Instance.CalculResources();
         }
     }
+
+
+
+
 
     private void HandleTileRevealEffects(Vector3Int cellPosition, TileData tileData)
     {
@@ -225,4 +271,13 @@ public class FogManager : MonoBehaviour
     {
         ResourceManager.Instance.Tiles++;
     }
+
+
+    public void IncreaseClickPower(int amount)
+    {
+        clickPower += amount;
+        Debug.Log($"Click Power augmenté ! Nouveau : {clickPower}");
+    }
+
+
 }

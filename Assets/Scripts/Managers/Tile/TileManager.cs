@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Tilemaps;
 
+
+// TileManager ne gère que l'affichage des tuiles.
 public class TileManager : MonoBehaviour
 {
     public static TileManager Instance { get; private set; } // Singleton
@@ -150,6 +152,7 @@ public class TileManager : MonoBehaviour
         //  ---- compléter ici en fonction des types de batiments ----
         if (tileName.Contains("town")) return BuildingType.Town;
         if (tileName.Contains("capital")) return BuildingType.Capital;
+        if (tileName.Contains("shrine")) return BuildingType.BonusShrine;
         return BuildingType.Other; // Si le nom ne correspond à rien
     }
 
@@ -227,9 +230,9 @@ public class TileManager : MonoBehaviour
         }
     }
 
+    // Retirer la tuile lors de la destruction
     public void RemoveBuilding(Vector3Int cellPosition)
     {
-        Debug.Log("destruction");
         BuildingTilemap.SetTile(cellPosition, null);
     }
 
@@ -275,12 +278,6 @@ public class TileManager : MonoBehaviour
         TileData tileData = GetTileData(position);
         return (tileData != null) && (tileData.Ground == ground) && tileData.IsClaimed;
     }
-
-
-
-
-
-
 
     // Méthode pour mettre à jour la tuile (route ou autre type)
     private void UpdateTileForRoad(Vector3Int position)

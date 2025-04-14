@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 
@@ -67,6 +66,14 @@ public class BuildingManager : MonoBehaviour
         BuildingData buildingData = new BuildingData(buildingType);
         _buildingsDataMap[position] = buildingData;
     }
+
+    public void AddShrineBuilding(Vector3Int position, ShrineBonusData bonusData)
+    {
+        ShrineBuildingData shrineData = new ShrineBuildingData(BuildingType.BonusShrine, bonusData);
+        _buildingsDataMap[position] = shrineData;
+    }
+
+
 
     // Obtient les données de coût pour un bâtiment donné
     public BuildingCostData GetBuildingCostData(BuildingType buildingType)
