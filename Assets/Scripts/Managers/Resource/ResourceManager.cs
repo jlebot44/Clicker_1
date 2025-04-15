@@ -143,6 +143,7 @@ public class ResourceManager : MonoBehaviour
         BuildingManager.OnBuildingConstructed += CalculResources;
     }
 
+
     void Awake()
     {
         if (Instance == null)
