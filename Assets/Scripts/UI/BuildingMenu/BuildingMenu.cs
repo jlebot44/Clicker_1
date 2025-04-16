@@ -10,6 +10,7 @@ public class BuildingMenu : MonoBehaviour
     [SerializeField] private GameObject _buildingPanel;
     [SerializeField] private Button _buildingButtonPrefab;
     [SerializeField] private BuildingInfoPanelController _infoPanel;
+    [SerializeField] private RectTransform _content; 
 
     // Stockage des boutons générés
     private List<Button> _buildingButtons = new List<Button>();
@@ -17,6 +18,9 @@ public class BuildingMenu : MonoBehaviour
     // Références pour gestion directe
     private Button _destroyButton;
     private Button _cancelButton;
+
+    // utilisé pour suivre la selection de construction en cours
+    private BuildingType _currentSelectedType = BuildingType.Other;
 
     // Mapping entre BuildingType et bouton correspondant
     private Dictionary<BuildingType, Button> _buttonMap = new Dictionary<BuildingType, Button>();
@@ -27,25 +31,15 @@ public class BuildingMenu : MonoBehaviour
         GenerateSpecialButtons();
     }
 
-    //// Génère les boutons pour les types de bâtiment constructibles
-    //private void GenerateConstructionButtons()
-    //{
-    //    BuildingType[] allBuildings = (BuildingType[])Enum.GetValues(typeof(BuildingType));
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(1)) 
+        {
+            OnCancelClicked(); 
+            _currentSelectedType = BuildingType.Other;
+        }
+    }
 
-    //    foreach (BuildingType type in allBuildings)
-    //    {
-    //        if (type == BuildingType.None || type == BuildingType.Other || type == BuildingType.Town || type == BuildingType.Capital || type == BuildingType.BonusShrine)
-    //            continue;
-
-    //        Button button = Instantiate(_buildingButtonPrefab, _buildingPanel.transform);
-    //        button.GetComponentInChildren<TextMeshProUGUI>().text = type.ToString();
-
-    //        button.onClick.AddListener(() => OnConstructionSelected(type));
-    //        _buildingButtons.Add(button);
-    //        _buttonMap[type] = button;
-    //    }
-    //}  
-    // Génère les boutons pour les types de bâtiment constructibles
     private void GenerateConstructionButtons()
     {
         BuildingType[] allBuildings = (BuildingType[])Enum.GetValues(typeof(BuildingType));
@@ -55,7 +49,7 @@ public class BuildingMenu : MonoBehaviour
             if (type == BuildingType.None || type == BuildingType.Other || type == BuildingType.Town || type == BuildingType.Capital || type == BuildingType.BonusShrine)
                 continue;
 
-            Button button = Instantiate(_buildingButtonPrefab, _buildingPanel.transform);
+            Button button = Instantiate(_buildingButtonPrefab, _content);
 
             // Trouver les éléments enfants
             Transform icon = button.transform.Find("Icon");
@@ -108,14 +102,14 @@ public class BuildingMenu : MonoBehaviour
     // Génère les boutons spéciaux : Annuler et Détruire
     private void GenerateSpecialButtons()
     {
-        // Annuler
-        _cancelButton = Instantiate(_buildingButtonPrefab, _buildingPanel.transform);
-        _cancelButton.GetComponentInChildren<TextMeshProUGUI>().text = "Annuler";
-        _cancelButton.onClick.AddListener(OnCancelClicked);
-        _buildingButtons.Add(_cancelButton);
+        //// Annuler
+        //_cancelButton = Instantiate(_buildingButtonPrefab, _content);
+        //_cancelButton.GetComponentInChildren<TextMeshProUGUI>().text = "Annuler";
+        //_cancelButton.onClick.AddListener(OnCancelClicked);
+        //_buildingButtons.Add(_cancelButton);
 
         // Détruire
-        _destroyButton = Instantiate(_buildingButtonPrefab, _buildingPanel.transform);
+        _destroyButton = Instantiate(_buildingButtonPrefab, _content);
         _destroyButton.GetComponentInChildren<TextMeshProUGUI>().text = "Détruire";
         _destroyButton.onClick.AddListener(OnDestroyClicked);
         _buildingButtons.Add(_destroyButton);
@@ -123,7 +117,16 @@ public class BuildingMenu : MonoBehaviour
 
     private void OnConstructionSelected(BuildingType buildingType)
     {
+        // Si déjà sélectionné > annuler
+        if (_currentSelectedType == buildingType)
+        {
+            OnCancelClicked(); 
+            _currentSelectedType = BuildingType.Other;
+            return;
+        }
+
         BuildModeManager.Instance.EnterBuildMode(buildingType);
+        _currentSelectedType = buildingType;
         HighlightSelectedButton(buildingType);
         _infoPanel.Show(buildingType);
     }
