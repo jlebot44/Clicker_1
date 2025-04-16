@@ -25,6 +25,7 @@ public class FogManager : MonoBehaviour
 
     [SerializeField] private int clickPower = 1; // puissance du clic - cout en mana du clic
 
+    private int _manaSpent;
 
     void Awake()
     {
@@ -82,12 +83,22 @@ public class FogManager : MonoBehaviour
 
     private void HandleFogClick(Vector3Int cellPosition, TileData tileData)
     {
-        // animation
-        _tileClickAnimation.ShakeTile(cellPosition, _fogTilemap);
+        if (clickPower > tileData.CurrentFog)
+        {
+            _manaSpent = tileData.CurrentFog;
+        }
+        else
+        {
+            _manaSpent = clickPower;
+        }
+            
+
+            // animation
+            _tileClickAnimation.ShakeTile(cellPosition, _fogTilemap);
 
 
         // Réduire le brouillard (chaque clic enlève 1 point par clickPower)
-        tileData.CurrentFog -= clickPower;
+        tileData.CurrentFog -= _manaSpent;
 
         // instanciation de la barre de vie du brouillard
         _healthBarController.Spawn(cellPosition);
@@ -96,10 +107,11 @@ public class FogManager : MonoBehaviour
         _healthBarController.UpdateHealthBar(cellPosition, tileData);
 
         // réduire le total de mana
-        ResourceManager.Instance.DeductResources(ResourceType.Mana, clickPower);
+        
+        ResourceManager.Instance.DeductResources(ResourceType.Mana, _manaSpent);
 
         // pop du floatingText qui indique le cout en ressource
-        ShowFloatingText(cellPosition, $"-{clickPower} Mana", Color.cyan);
+        ShowFloatingText(cellPosition, $"-{_manaSpent} Mana", Color.cyan);
 
         // Si le brouillard est complètement dissipé, retirer la tuile du FogTilemap
         if (tileData.CurrentFog <= 0)

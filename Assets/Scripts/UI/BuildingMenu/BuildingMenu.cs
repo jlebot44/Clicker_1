@@ -25,16 +25,19 @@ public class BuildingMenu : MonoBehaviour
 
     // Mapping entre BuildingType et bouton correspondant
     private Dictionary<BuildingType, Button> _buttonMap = new Dictionary<BuildingType, Button>();
+    private Dictionary<ShrineBonusData, Button> _bonusButtonMap = new();
 
     private void OnEnable()
     {
-        ResourceManager.OnResourceChanged += UpdateButtonStates;
-        UpdateButtonStates(ResourceType.Gold, 0);
+        ShrineBonusManager.OnBonusListChanged += GenerateBonusButtons;
+        ResourceManager.OnResourceChanged += HandleResourceChanged;
+        
     }
 
     private void OnDisable()
     {
-        ResourceManager.OnResourceChanged -= UpdateButtonStates;
+        ShrineBonusManager.OnBonusListChanged -= GenerateBonusButtons;
+        ResourceManager.OnResourceChanged -= HandleResourceChanged;
     }
 
 
@@ -42,18 +45,26 @@ public class BuildingMenu : MonoBehaviour
     {
         GenerateConstructionButtons();
         GenerateSpecialButtons();
+        GenerateBonusButtons();
+        HandleResourceChanged(ResourceType.Gold, 0);
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(1)) 
+        if (Input.GetMouseButtonDown(1))
         {
-            OnCancelClicked(); 
+            OnCancelClicked();
             _currentSelectedType = BuildingType.Other;
         }
     }
 
-    private void UpdateButtonStates(ResourceType type, int newValue)
+    private void HandleResourceChanged(ResourceType type, int amount)
+    {
+        UpdateBuildingButtonStates();
+        UpdateBonusButtonStates();
+    }
+
+    private void UpdateBuildingButtonStates()
     {
         foreach (var pair in _buttonMap)
         {
@@ -76,6 +87,29 @@ public class BuildingMenu : MonoBehaviour
 
         }
     }
+
+    private void UpdateBonusButtonStates()
+    {
+        foreach (var pair in _bonusButtonMap)
+        {
+            ShrineBonusData bonus = pair.Key;
+            Button button = pair.Value;
+
+            bool canActivate = ShrineBonusManager.Instance.CanActivate(bonus);
+            button.interactable = canActivate;
+
+            TextMeshProUGUI costText = button.transform.Find("Panel/Cost")?.GetComponent<TextMeshProUGUI>();
+            if (costText == null) continue;
+            bool hasEnough = ShrineBonusManager.Instance.HasEnoughResources(bonus.activationCost);
+            costText.color = hasEnough ? Color.white : Color.red;
+
+            // Bonus activé > fond vert
+            var bg = button.GetComponent<Image>();
+            if (bg != null)
+                bg.color = ShrineBonusManager.Instance.IsActivated(bonus) ? Color.green : Color.white;
+        }
+    }
+
 
 
 
@@ -106,7 +140,7 @@ public class BuildingMenu : MonoBehaviour
 
             if (cost != null)
             {
-                cost.text = GetCostString(costData);
+                cost.text = FormatResourceCosts(costData.resourceCosts);
 
                 bool hasEnough = BuildingResourceService.HasEnoughResources(costData.resourceCosts);
                 cost.color = hasEnough ? Color.white : Color.red;
@@ -124,7 +158,6 @@ public class BuildingMenu : MonoBehaviour
 
     private BuildingCostData GetCostData(BuildingType type)
     {
-        Debug.Log(type.ToString());
         return BuildingManager.Instance.GetBuildingCostData(type);
     }
 
@@ -203,15 +236,81 @@ public class BuildingMenu : MonoBehaviour
         _buildingPanel.SetActive(show);
     }
 
-    private string GetCostString(BuildingCostData costData)
+
+
+    [SerializeField] private GameObject _bonusPanel;
+    [SerializeField] private RectTransform _bonusContent;
+
+
+
+
+    private void GenerateBonusButtons()
+    {
+        _bonusButtonMap.Clear();
+
+        foreach (Transform child in _bonusContent)
+            Destroy(child.gameObject);
+
+        foreach (var bonus in ShrineBonusManager.Instance.GetAllKnownBonuses())
+        {
+            Button button = Instantiate(_buildingButtonPrefab, _bonusContent);
+
+            var title = button.transform.Find("Panel/Title")?.GetComponent<TextMeshProUGUI>();
+            var cost = button.transform.Find("Panel/Cost")?.GetComponent<TextMeshProUGUI>();
+            var icon = button.transform.Find("Icon");
+
+            if (title != null)
+                title.text = bonus.bonusName;
+
+            if (cost != null)
+            {
+                if (ShrineBonusManager.Instance.IsActivated(bonus))
+                    cost.text = "<b><color=green>ACTIVÉ</color></b>";
+                else
+                {
+                    cost.text = FormatResourceCosts(bonus.activationCost);
+                    bool hasEnough = ShrineBonusManager.Instance.HasEnoughResources(bonus.activationCost);                    
+                    cost.color = hasEnough ? Color.white : Color.red;
+                }
+                    
+            }
+
+            if (icon != null && bonus.icon != null)
+                icon.GetComponent<Image>().sprite = bonus.icon;
+
+            bool canActivate = ShrineBonusManager.Instance.CanActivate(bonus);
+            bool isActivated = ShrineBonusManager.Instance.IsActivated(bonus);
+
+            button.interactable = canActivate && !isActivated;
+
+            // Mise en surbrillance si activé
+            var bg = button.GetComponent<Image>();
+            if (bg != null)
+                bg.color = isActivated ? Color.green : Color.white;
+
+            button.onClick.AddListener(() =>
+            {
+                ShrineBonusManager.Instance.ActivateBonus(bonus);
+                UpdateBonusButtonStates(); // met à jour l’état sans tout recréer
+            });
+
+            _bonusButtonMap[bonus] = button;
+        }
+
+        UpdateBonusButtonStates(); // pour la première mise à jour
+    }
+
+
+
+    private string FormatResourceCosts(List<ResourceCost> costs)
     {
         List<string> parts = new List<string>();
-        foreach (var res in costData.resourceCosts)
+        foreach (var res in costs)
         {
             parts.Add($"{res.amount} {res.resourceType}");
         }
-
         return string.Join("\n", parts);
     }
+
 
 }

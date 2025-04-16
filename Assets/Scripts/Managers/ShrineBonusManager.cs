@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ShrineBonusManager : MonoBehaviour
@@ -17,6 +18,17 @@ public class ShrineBonusManager : MonoBehaviour
             Destroy(gameObject);
         else
             Instance = this;
+    }
+
+    public bool IsActivated(ShrineBonusData bonus)
+    {
+        return _activatedBonuses.Contains(bonus);
+    }
+
+    public List<ShrineBonusData> GetAllKnownBonuses()
+    {
+        return new List<ShrineBonusData>(_availableBonuses
+            .Union(_activatedBonuses)); // pour éviter les doublons
     }
 
 
@@ -56,6 +68,19 @@ public class ShrineBonusManager : MonoBehaviour
     public List<ShrineBonusData> GetAvailableBonuses()
     {
         return new List<ShrineBonusData>(_availableBonuses);
+    }
+
+    public bool HasEnoughResources(List<ResourceCost> costs)
+    {
+        foreach (var cost in costs)
+        {
+            if (!ResourceManager.Instance.HasEnoughResources(cost.resourceType, cost.amount))
+            {
+                Debug.Log($"Ressource manquante : {cost.resourceType} ({cost.amount})");
+                return false;
+            }
+        }
+        return true;
     }
 
 
