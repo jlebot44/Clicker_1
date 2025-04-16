@@ -10,7 +10,8 @@ public class BuildingMenu : MonoBehaviour
     [SerializeField] private GameObject _buildingPanel;
     [SerializeField] private Button _buildingButtonPrefab;
     [SerializeField] private BuildingInfoPanelController _infoPanel;
-    [SerializeField] private RectTransform _content; 
+    [SerializeField] private RectTransform _content;
+
 
     // Stockage des boutons générés
     private List<Button> _buildingButtons = new List<Button>();
@@ -24,6 +25,18 @@ public class BuildingMenu : MonoBehaviour
 
     // Mapping entre BuildingType et bouton correspondant
     private Dictionary<BuildingType, Button> _buttonMap = new Dictionary<BuildingType, Button>();
+
+    private void OnEnable()
+    {
+        ResourceManager.OnResourceChanged += UpdateButtonStates;
+        UpdateButtonStates(ResourceType.Gold, 0);
+    }
+
+    private void OnDisable()
+    {
+        ResourceManager.OnResourceChanged -= UpdateButtonStates;
+    }
+
 
     private void Start()
     {
@@ -40,6 +53,32 @@ public class BuildingMenu : MonoBehaviour
         }
     }
 
+    private void UpdateButtonStates(ResourceType type, int newValue)
+    {
+        foreach (var pair in _buttonMap)
+        {
+            BuildingType buildingType = pair.Key;
+            Button button = pair.Value;
+
+            BuildingCostData costData = GetCostData(buildingType);
+            if (costData == null) continue;
+
+            TextMeshProUGUI costText = button.transform.Find("Panel/Cost")?.GetComponent<TextMeshProUGUI>();
+            if (costText == null) continue;
+
+            bool hasEnough = BuildingResourceService.HasEnoughResources(costData.resourceCosts);
+
+            // Changer la couleur du texte
+            costText.color = hasEnough ? Color.white : Color.red;
+
+            // Activer ou désactiver le bouton
+            button.interactable = hasEnough;
+
+        }
+    }
+
+
+
     private void GenerateConstructionButtons()
     {
         BuildingType[] allBuildings = (BuildingType[])Enum.GetValues(typeof(BuildingType));
@@ -49,26 +88,32 @@ public class BuildingMenu : MonoBehaviour
             if (type == BuildingType.None || type == BuildingType.Other || type == BuildingType.Town || type == BuildingType.Capital || type == BuildingType.BonusShrine)
                 continue;
 
+            var costData = GetCostData(type);
+            if (costData == null)
+            {
+                Debug.LogWarning($"Pas de données de coût pour le type {type}");
+                continue;
+            }
+
             Button button = Instantiate(_buildingButtonPrefab, _content);
 
-            // Trouver les éléments enfants
             Transform icon = button.transform.Find("Icon");
             TextMeshProUGUI title = button.transform.Find("Panel/Title")?.GetComponent<TextMeshProUGUI>();
             TextMeshProUGUI cost = button.transform.Find("Panel/Cost")?.GetComponent<TextMeshProUGUI>();
 
-            // Assigner les valeurs
             if (title != null)
-                title.text = GetDisplayName(type);
+                title.text = costData.displayName;
 
             if (cost != null)
-                cost.text = GetCostString(type);
-
-            if (icon != null)
             {
-                // Si tu veux gérer les icônes plus tard
-                // icon.GetComponent<Image>().sprite = GetIcon(type);
+                cost.text = GetCostString(costData);
+
+                bool hasEnough = BuildingResourceService.HasEnoughResources(costData.resourceCosts);
+                cost.color = hasEnough ? Color.white : Color.red;
             }
 
+            if (icon != null && costData.icon != null)
+                icon.GetComponent<Image>().sprite = costData.icon;
 
             button.onClick.AddListener(() => OnConstructionSelected(type));
             _buildingButtons.Add(button);
@@ -77,37 +122,17 @@ public class BuildingMenu : MonoBehaviour
     }
 
 
-    private string GetDisplayName(BuildingType type)
+    private BuildingCostData GetCostData(BuildingType type)
     {
-        return type switch
-        {
-            BuildingType.StoneMine => "Mine de pierre",
-            BuildingType.WoodPile => "Tas de bois",
-            BuildingType.Temple => "Temple",
-            _ => type.ToString()
-        };
+        Debug.Log(type.ToString());
+        return BuildingManager.Instance.GetBuildingCostData(type);
     }
 
-    private string GetCostString(BuildingType type)
-    {
-        // À adapter à ton système de coût réel
-        return type switch
-        {
-            BuildingType.StoneMine => "10 pierre",
-            BuildingType.WoodPile => "5 bois",
-            _ => ""
-        };
-    }
+
 
     // Génère les boutons spéciaux : Annuler et Détruire
     private void GenerateSpecialButtons()
     {
-        //// Annuler
-        //_cancelButton = Instantiate(_buildingButtonPrefab, _content);
-        //_cancelButton.GetComponentInChildren<TextMeshProUGUI>().text = "Annuler";
-        //_cancelButton.onClick.AddListener(OnCancelClicked);
-        //_buildingButtons.Add(_cancelButton);
-
         // Détruire
         _destroyButton = Instantiate(_buildingButtonPrefab, _content);
         _destroyButton.GetComponentInChildren<TextMeshProUGUI>().text = "Détruire";
@@ -177,4 +202,16 @@ public class BuildingMenu : MonoBehaviour
     {
         _buildingPanel.SetActive(show);
     }
+
+    private string GetCostString(BuildingCostData costData)
+    {
+        List<string> parts = new List<string>();
+        foreach (var res in costData.resourceCosts)
+        {
+            parts.Add($"{res.amount} {res.resourceType}");
+        }
+
+        return string.Join("\n", parts);
+    }
+
 }

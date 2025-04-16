@@ -5,6 +5,8 @@ using System.Collections.Generic;
 public class BuildingCostData : ScriptableObject
 {
     public BuildingType buildingType;
+    public Sprite icon;
+    public string displayName;
     public List<ResourceCost> resourceCosts; // Liste des ressources et de leur coût
 }
 
