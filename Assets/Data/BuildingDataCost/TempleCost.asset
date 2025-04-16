@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: TempleCost
   m_EditorClassIdentifier: 
   buildingType: 5
+  icon: {fileID: -6653460834538539993, guid: 05b06cf262d2e7a4fb3510fdffb1a876, type: 3}
+  displayName: Autel
   resourceCosts:
   - resourceType: 0
     amount: 1

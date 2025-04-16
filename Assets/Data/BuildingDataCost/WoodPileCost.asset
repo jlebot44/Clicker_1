@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: WoodPileCost
   m_EditorClassIdentifier: 
   buildingType: 7
+  icon: {fileID: 2097100493020264754, guid: 4496657d00b9ac34b86477403cbb90b8, type: 3}
+  displayName: Stock de Bois
   resourceCosts:
   - resourceType: 0
     amount: 1

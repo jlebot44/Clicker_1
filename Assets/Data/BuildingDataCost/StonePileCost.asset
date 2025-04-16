@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: StonePileCost
   m_EditorClassIdentifier: 
   buildingType: 8
+  icon: {fileID: 1182866520733963855, guid: 4496657d00b9ac34b86477403cbb90b8, type: 3}
+  displayName: Stock de Pierre
   resourceCosts:
   - resourceType: 0
     amount: 1

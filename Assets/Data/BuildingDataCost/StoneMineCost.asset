@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: StoneMineCost
   m_EditorClassIdentifier: 
   buildingType: 6
+  icon: {fileID: 6136605151648390257, guid: 4496657d00b9ac34b86477403cbb90b8, type: 3}
+  displayName: Mine
   resourceCosts:
   - resourceType: 0
     amount: 1

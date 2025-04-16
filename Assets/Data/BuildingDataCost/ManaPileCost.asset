@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: ManaPileCost
   m_EditorClassIdentifier: 
   buildingType: 9
+  icon: {fileID: -8607066586264903712, guid: 4496657d00b9ac34b86477403cbb90b8, type: 3}
+  displayName: Stock Manage
   resourceCosts:
   - resourceType: 0
     amount: 1
