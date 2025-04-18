@@ -9,7 +9,7 @@ public static class BuildingResourceService
         {
             if (!ResourceManager.Instance.HasEnoughResources(cost.resourceType, cost.amount))
             {
-                Debug.Log($"Ressource manquante : {cost.resourceType} ({cost.amount})");
+                
                 return false;
             }
         }
@@ -22,7 +22,7 @@ public static class BuildingResourceService
         {
             if (!ResourceManager.Instance.HasEnoughResources(cost.resourceType, cost.amount))
             {
-                Debug.Log($"Ressource manquante : {cost.resourceType} ({cost.amount})");
+                
                 return false;
             }
         }
