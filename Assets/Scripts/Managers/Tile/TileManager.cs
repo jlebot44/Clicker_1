@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -39,6 +40,8 @@ public class TileManager : MonoBehaviour
     [SerializeField] private TileBase _manaPile;
 
     private Dictionary<Vector3Int, TileData> _tileDataMap = new Dictionary<Vector3Int, TileData>();
+
+    [SerializeField] private GameObject dustEffectPrefab;
 
 
     public Tilemap GroundTilemap { get => _groundTilemap; set => _groundTilemap = value; }
@@ -186,49 +189,109 @@ public class TileManager : MonoBehaviour
     // Méthode pour placer une tile sur la Tilemap
     public void PlaceBuildingTile(Vector3Int cellPosition, BuildingType buildingType)
     {
-        // Si le type de construction est une route, appel de la méthode PlaceRoad
         if (buildingType == BuildingType.Road)
         {
-            PlaceRoad(cellPosition);  // Appel à la méthode PlaceRoad pour gérer les routes
+            PlaceRoad(cellPosition);
         }
         else
         {
             TileBase tileToPlace = null;
 
-            // Sélectionner la bonne tile en fonction du type de construction
             switch (buildingType)
             {
-                case BuildingType.Lumberjack:
-                    tileToPlace = _lumberjack;
-                    break;
-                case BuildingType.Temple:
-                    tileToPlace = _temple;
-                    break;
-                case BuildingType.StoneMine:
-                    tileToPlace = _stoneMine;
-                    break;
-                case BuildingType.WoodPile:
-                    tileToPlace = _woodPile;
-                    break;
-                case BuildingType.StonePile:
-                    tileToPlace = _stonePile;
-                    break;
-                case BuildingType.ManaPile:
-                    tileToPlace = _manaPile;
-                    break;
-                // Ajoute d'autres cas pour d'autres types de bâtiments
+                case BuildingType.Lumberjack: tileToPlace = _lumberjack; break;
+                case BuildingType.Temple: tileToPlace = _temple; break;
+                case BuildingType.StoneMine: tileToPlace = _stoneMine; break;
+                case BuildingType.WoodPile: tileToPlace = _woodPile; break;
+                case BuildingType.StonePile: tileToPlace = _stonePile; break;
+                case BuildingType.ManaPile: tileToPlace = _manaPile; break;
                 default:
                     Debug.LogWarning("Building type not found!");
-                    break;
+                    return;
             }
 
-            // Si une tile a été trouvée, place-la sur la Tilemap
             if (tileToPlace != null)
             {
-                BuildingTilemap.SetTile(cellPosition, tileToPlace);
+                StartCoroutine(AnimateTilePlacement(cellPosition, tileToPlace));
             }
         }
     }
+
+
+    private IEnumerator AnimateTilePlacement(Vector3Int cellPosition, TileBase tileBase)
+    {
+        Vector3 worldPos = _buildingTilemap.GetCellCenterWorld(cellPosition);
+
+        GameObject ghost = new GameObject("GhostTile");
+        ghost.transform.position = worldPos + Vector3.up * 0.12f;
+        var spriteRenderer = ghost.AddComponent<SpriteRenderer>();
+        spriteRenderer.sprite = tileBase is Tile tile ? tile.sprite : null;
+        spriteRenderer.sortingOrder = 10;
+
+        float liftHeight = 0.03f;
+        float liftDuration = 0.04f;
+        float pauseDuration = 0.15f;
+        float fallDuration = 0.02f;
+        float bounceHeight = 0.01f;
+        float bounceDuration = 0.03f;
+
+        Vector3 topPosition = worldPos + Vector3.up * (0.12f + liftHeight);
+        Vector3 basePosition = worldPos;
+
+        // Montée ultra brève
+        float t = 0;
+        while (t < liftDuration)
+        {
+            float progress = t / liftDuration;
+            float ease = Mathf.Sin(progress * Mathf.PI * 0.5f); // ease-out
+            ghost.transform.position = Vector3.Lerp(worldPos + Vector3.up * 0.12f, topPosition, ease);
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        // Pause dramatique
+        ghost.transform.position = topPosition;
+        yield return new WaitForSeconds(pauseDuration);
+
+        // Chute violente
+        t = 0;
+        while (t < fallDuration)
+        {
+            float progress = t / fallDuration;
+            float ease = 1 - Mathf.Cos(progress * Mathf.PI * 0.5f); // ease-in
+            ghost.transform.position = Vector3.Lerp(topPosition, basePosition, ease);
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        // Impact final
+        ghost.transform.position = basePosition;
+
+        // Instanciation de l'effet de poussière
+        if (dustEffectPrefab != null)
+        {
+
+            GameObject dust = Instantiate(dustEffectPrefab, basePosition, Quaternion.identity);
+            Destroy(dust, 2f); // Nettoyage après
+        }
+
+        // Rebond minimal
+        t = 0;
+        while (t < bounceDuration)
+        {
+            float progress = t / bounceDuration;
+            float ease = Mathf.Sin(progress * Mathf.PI);
+            ghost.transform.position = basePosition + Vector3.up * ease * bounceHeight;
+            t += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+
+
+
+
+
 
     // Retirer la tuile lors de la destruction
     public void RemoveBuilding(Vector3Int cellPosition)
