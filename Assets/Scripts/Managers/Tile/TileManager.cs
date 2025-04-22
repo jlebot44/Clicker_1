@@ -41,7 +41,10 @@ public class TileManager : MonoBehaviour
 
     private Dictionary<Vector3Int, TileData> _tileDataMap = new Dictionary<Vector3Int, TileData>();
 
+
+
     [SerializeField] private GameObject dustEffectPrefab;
+    
 
 
     public Tilemap GroundTilemap { get => _groundTilemap; set => _groundTilemap = value; }
@@ -120,7 +123,7 @@ public class TileManager : MonoBehaviour
                 BuildingType buildingType = buildingTile != null ? ClassifyBuildingType(buildingTile.name) : BuildingType.None;
 
                 // Calcul du niveau de brouillard : |X| + |Y|
-                int fogLevel = Mathf.Abs(cellPosition.x) + Mathf.Abs(cellPosition.y);
+                int fogLevel = Mathf.CeilToInt((Mathf.Abs(cellPosition.x) + Mathf.Abs(cellPosition.y)) * GetFogMultiplier(reliefType));
 
                 // Création de l'objet TileData
                 TileData tileData = new TileData(groundType, reliefType, buildingType, fogLevel);
@@ -171,6 +174,24 @@ public class TileManager : MonoBehaviour
         if (tileName.Contains("river")) return ReliefType.River;
         if (tileName.Contains("tree")) return ReliefType.Wood;
         return ReliefType.Other; // Si le nom ne correspond à rien
+    }
+
+    private float GetFogMultiplier(ReliefType relief)
+    {
+        float multiplier = 1f;
+
+        // Forêt
+        if (relief == ReliefType.Wood) multiplier *= 1.5f;
+
+        // Montagne
+        if (relief == ReliefType.Mountain) multiplier *= 3.5f;
+
+        // Rivière (brouillard plus léger)
+        if (relief == ReliefType.River) multiplier *= 2f;
+
+        // Autres reliefs ou sol spécial ? Tu peux compléter ici
+
+        return multiplier;
     }
 
     private GroundType ClassifyGroundType(string tileName)
@@ -285,6 +306,11 @@ public class TileManager : MonoBehaviour
             t += Time.deltaTime;
             yield return null;
         }
+
+        // Placer la vrai tuile
+        _buildingTilemap.SetTile(cellPosition, tileBase);
+        // Nettoie l’objet visuel après l’effet
+        Destroy(ghost); 
     }
 
 
@@ -296,7 +322,10 @@ public class TileManager : MonoBehaviour
     // Retirer la tuile lors de la destruction
     public void RemoveBuilding(Vector3Int cellPosition)
     {
-        BuildingTilemap.SetTile(cellPosition, null);
+        UIManager.Instance.ShowFloatingText("SUPPRIME", cellPosition, Color.blue);
+        Debug.Log($"Tile before removal: {_buildingTilemap.GetTile(cellPosition)}");
+        _buildingTilemap.SetTile(cellPosition, null);
+        Debug.Log($"Tile after removal: {_buildingTilemap.GetTile(cellPosition)}");
     }
 
     // Méthode pour placer une route et vérifier les tuiles adjacentes
@@ -387,5 +416,8 @@ public class TileManager : MonoBehaviour
         if (direction == Vector3Int.down) return 0b0001;
         return 0;
     }
+
+
+
 
 }

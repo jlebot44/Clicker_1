@@ -34,7 +34,6 @@ public class EvolvePanelController : MonoBehaviour
     {
         TileData tileData = TileManager.Instance.GetTileData(cellPos);
         BuildingData buildingData = BuildingManager.Instance.GetBuildingData(cellPos);
-        Debug.Log(cellPos);
 
         if (tileData == null || buildingData == null)
         {
@@ -44,6 +43,15 @@ public class EvolvePanelController : MonoBehaviour
         }
 
         int nextLevel = buildingData.Level + 1;
+        int capitalLevel = BuildingManager.Instance.GetCapitalLevel();
+
+        if (nextLevel > capitalLevel && tileData.Building != BuildingType.Capital)
+        {
+            _evolveButtonText.text = $"Impossible : la capitale doit être au niveau {nextLevel} ou plus";
+            _evolveButton.interactable = false;
+            return;
+        }
+
         var upgradeData = BuildingManager.Instance.GetUpgradeData(tileData.Building, nextLevel);
 
         if (upgradeData == null)
@@ -53,14 +61,18 @@ public class EvolvePanelController : MonoBehaviour
             return;
         }
 
+        bool hasEnough = BuildingManager.Instance.HasEnoughResourcesToEvol(upgradeData);
+
         string costText = $"Évoluer au niveau {nextLevel}\n";
         foreach (var cost in upgradeData.upgradeCosts)
         {
-            costText += $"{cost.resourceType}: {cost.amount}  \n";
+            bool enough = ResourceManager.Instance.HasEnoughResources(cost.resourceType, cost.amount);
+            string colorTag = enough ? "white" : "red";
+            costText += $"<color={colorTag}>{cost.resourceType}: {cost.amount}</color>\n";
         }
 
         _evolveButtonText.text = costText.Trim();
-        _evolveButton.interactable = true;
+        _evolveButton.interactable = hasEnough;
     }
 
 

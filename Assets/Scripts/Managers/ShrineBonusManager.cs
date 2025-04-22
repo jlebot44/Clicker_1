@@ -54,6 +54,8 @@ public class ShrineBonusManager : MonoBehaviour
 
     public void ActivateBonus(ShrineBonusData bonus)
     {
+        if (IsActivated(bonus))
+            return; // déjà activé, on ne fait rien
         if (CanActivate(bonus))
         {
             BuildingResourceService.DeductResources(bonus.activationCost);
@@ -75,8 +77,7 @@ public class ShrineBonusManager : MonoBehaviour
         foreach (var cost in costs)
         {
             if (!ResourceManager.Instance.HasEnoughResources(cost.resourceType, cost.amount))
-            {
-                Debug.Log($"Ressource manquante : {cost.resourceType} ({cost.amount})");
+            {                
                 return false;
             }
         }
@@ -97,7 +98,6 @@ public class ShrineBonusManager : MonoBehaviour
             case BonusEffectType.ExtraClickPower:
                 FogManager.Instance.IncreaseClickPower(bonus.effectValue);
                 break;
-
         }
 
         Debug.Log($"Bonus activé : {bonus.bonusName}");

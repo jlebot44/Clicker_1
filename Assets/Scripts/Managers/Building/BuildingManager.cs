@@ -28,7 +28,7 @@ public class BuildingManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            Destroy(gameObject);            
         }
         else
         {
@@ -131,7 +131,10 @@ public class BuildingManager : MonoBehaviour
         // Recalculer les per-turn et autres stats
         ResourceManager.Instance.CalculResources();
 
-        Debug.Log($"Bâtiment {tileData.Building} évolué au niveau {buildingData.Level}");
+
+        NotifyConstruction();
+
+
     }
 
 

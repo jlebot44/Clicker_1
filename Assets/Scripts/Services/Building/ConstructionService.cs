@@ -39,7 +39,19 @@ public static class ConstructionService
         TileData tileData = TileManager.Instance.GetTileData(cellPosition);
         if (tileData == null || tileData.Building == BuildingType.None)
         {
-            Debug.Log("Aucun bâtiment à détruire.");
+            UIManager.Instance.ShowFloatingText("Aucun batiment à détruire ici", cellPosition, Color.red);
+            return false;
+        }
+
+        if (tileData.Building == BuildingType.Town || tileData.Building == BuildingType.Capital)
+        {
+            UIManager.Instance.ShowFloatingText("Impossible de supprimer une ville", cellPosition, Color.red);
+            return false;
+        }
+
+        if (tileData.Building == BuildingType.Road)
+        {
+            UIManager.Instance.ShowFloatingText("Impossible de supprimer une route pour le moment", cellPosition, Color.red);
             return false;
         }
 

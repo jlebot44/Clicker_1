@@ -9,7 +9,6 @@ public class BuildingMenu : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private GameObject _buildingPanel;
     [SerializeField] private Button _buildingButtonPrefab;
-    [SerializeField] private BuildingInfoPanelController _infoPanel;
     [SerializeField] private RectTransform _content;
 
 
@@ -18,7 +17,6 @@ public class BuildingMenu : MonoBehaviour
 
     // Références pour gestion directe
     private Button _destroyButton;
-    private Button _cancelButton;
 
     // utilisé pour suivre la selection de construction en cours
     private BuildingType _currentSelectedType = BuildingType.Other;
@@ -186,21 +184,28 @@ public class BuildingMenu : MonoBehaviour
         BuildModeManager.Instance.EnterBuildMode(buildingType);
         _currentSelectedType = buildingType;
         HighlightSelectedButton(buildingType);
-        _infoPanel.Show(buildingType);
     }
 
-    private void OnDestroyClicked()
+private void OnDestroyClicked()
+{
+    // Si déjà en mode destruction, on annule
+    if (_currentSelectedType == BuildingType.None && BuildModeManager.Instance.IsInBuildMode)
+    {
+        OnCancelClicked();
+        _currentSelectedType = BuildingType.Other;
+    }
+    else
     {
         BuildModeManager.Instance.EnterBuildMode(BuildingType.None);
+        _currentSelectedType = BuildingType.None;
         HighlightSelectedButton(BuildingType.None);
-        _infoPanel.Hide();
     }
+}
 
     private void OnCancelClicked()
     {
         BuildModeManager.Instance.CancelBuildMode();
         ResetAllHighlights();
-        _infoPanel.Hide();
     }
 
     private void HighlightSelectedButton(BuildingType selected)

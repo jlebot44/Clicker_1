@@ -65,7 +65,6 @@ public class TileClickHandler : MonoBehaviour
             TileData tileData = TileManager.Instance.GetTileData(cellPosition);
             if (tileData != null && tileData.Building != BuildingType.None)
             {
-                Debug.Log($"Try destroy at {cellPosition} — building: {tileData.Building}");
                 BuildingManager.Instance.Build(BuildingType.None, cellPosition);
             }
             return;
@@ -77,7 +76,7 @@ public class TileClickHandler : MonoBehaviour
         }
         else
         {
-            Debug.Log("Impossible de construire ici !");
+            UIManager.Instance.ShowFloatingText("Impossible de construire ici !", _tilemap.GetCellCenterWorld(cellPosition), Color.red);
         }
     }
 

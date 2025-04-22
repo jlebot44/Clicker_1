@@ -29,7 +29,7 @@ public class ResourceManager : MonoBehaviour
     private int _stonePerTurn;
 
     private int _manaCapacity = 50;
-    private int _goldCapacity = 50;
+    private int _goldCapacity = 40;
     private int _woodCapacity = 10;
     private int _stoneCapacity = 10;
 
@@ -259,7 +259,7 @@ public class ResourceManager : MonoBehaviour
     public void CalculCapacity()
     {
         int newManaCapacity = 50;
-        int newGoldCapacity = 50;
+        int newGoldCapacity = 40;
         int newWoodCapacity = 10;
         int newStoneCapacity = 10;
 
@@ -277,10 +277,10 @@ public class ResourceManager : MonoBehaviour
                     newManaCapacity += _capacityPerManaPile;
                     break;
                 case BuildingType.Town:
-                    newGoldCapacity += _capacityPerGoldPile;
+                    newGoldCapacity += _capacityPerGoldPile * building.Value.Level;
                     break;
                 case BuildingType.Capital:
-                    newGoldCapacity += _capacityPerGoldPile;
+                    newGoldCapacity += _capacityPerGoldPile * building.Value.Level;
                     break;
                 case BuildingType.WoodPile:
                     newWoodCapacity += _capacityPerWoodPile;

@@ -35,14 +35,6 @@ public static class BuildingValidatorService
     {
         var tileData = TileManager.Instance.GetTileData(cellPosition);
         var buildingData = BuildingManager.Instance.GetBuildingData(cellPosition);
-
-        int capitalLevel = BuildingManager.Instance.GetCapitalLevel();
-        if (buildingData.Type != BuildingType.Capital && buildingData.Level + 1 >= capitalLevel)
-        {
-            Debug.Log("Le niveau de la ville ne peut pas dépasser celui de la capitale.");
-            return false;
-        }
-
         var upgrade = BuildingManager.Instance.GetUpgradeData(tileData.Building, buildingData.Level + 1);
         return upgrade != null && BuildingManager.Instance.HasEnoughResourcesToEvol(upgrade);
     }
