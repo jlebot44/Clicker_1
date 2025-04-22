@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a506d0258e681ac4a8e150ed55c469bb, type: 3}
   m_Name: ShrineBonus002
   m_EditorClassIdentifier: 
-  bonusName: ClickPower
-  description: Ajout de 3 points de clickPower
+  bonusName: Clic Power
+  description: Ajout de 1 point de clic power
   icon: {fileID: 0}
   activationCost:
   - resourceType: 0
-    amount: 6
+    amount: 250
   effectType: 1
-  effectValue: 3
+  effectValue: 1
