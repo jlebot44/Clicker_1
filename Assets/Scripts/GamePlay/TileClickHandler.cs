@@ -38,7 +38,8 @@ public class TileClickHandler : MonoBehaviour
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3Int cellPosition = _tilemap.WorldToCell(mouseWorldPos);
 
-            TileData selectedTileData = TileManager.Instance.GetTileData(cellPosition);
+            TileData selectedTileData = TileManager.Instance.DataManager.GetTileData(cellPosition);
+            Debug.Log(cellPosition);
 
             if (selectedTileData == null) return;
 
@@ -62,7 +63,7 @@ public class TileClickHandler : MonoBehaviour
         if (selected == BuildingType.None)
         {
             // Si on est en mode destruction et qu’il y a un bâtiment
-            TileData tileData = TileManager.Instance.GetTileData(cellPosition);
+            TileData tileData = TileManager.Instance.DataManager.GetTileData(cellPosition);
             if (tileData != null && tileData.Building != BuildingType.None)
             {
                 BuildingManager.Instance.Build(BuildingType.None, cellPosition);
@@ -82,7 +83,7 @@ public class TileClickHandler : MonoBehaviour
 
     private void HandleTileSelected(Vector3Int cellPosition)
     {
-        TileData tileData = TileManager.Instance.GetTileData(cellPosition);
+        TileData tileData = TileManager.Instance.DataManager.GetTileData(cellPosition);
 
         // ici on filtre l'evolution sur les ville claimed et reliés à la capitale. A faire evoluer si on permet l'evolution d'autre building
         if (tileData == null

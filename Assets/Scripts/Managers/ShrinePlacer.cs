@@ -20,7 +20,7 @@ public class ShrinePlacer : MonoBehaviour
             BuildingManager.Instance.AddShrineBuilding(shrine.position, shrine.bonusData);
 
             // Si la case est déjà claim (révélée), on enregistre directement le bonus
-            TileData tileData = TileManager.Instance.GetTileData(shrine.position);
+            TileData tileData = TileManager.Instance.DataManager.GetTileData(shrine.position);
             if (tileData != null && tileData.IsClaimed)
             {
                 ShrineBonusManager.Instance.RegisterBonus(shrine.bonusData);

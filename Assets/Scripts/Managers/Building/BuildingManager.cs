@@ -115,7 +115,7 @@ public class BuildingManager : MonoBehaviour
             return;        
 
         BuildingData buildingData = BuildingsDataMap[position];
-        TileData tileData = TileManager.Instance.GetTileData(position);
+        TileData tileData = TileManager.Instance.DataManager.GetTileData(position);
 
         BuildingUpgradeData upgradeData = GetUpgradeData(tileData.Building, buildingData.Level + 1);
         if (upgradeData == null)

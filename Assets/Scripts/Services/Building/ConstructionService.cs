@@ -4,7 +4,7 @@ public static class ConstructionService
 {
     public static bool TryConstruct(BuildingType type, Vector3Int cellPosition)
     {
-        TileData tileData = TileManager.Instance.GetTileData(cellPosition);
+        TileData tileData = TileManager.Instance.DataManager.GetTileData(cellPosition);
         if (tileData == null)
         {
             Debug.LogWarning("Tuile introuvable.");
@@ -27,7 +27,7 @@ public static class ConstructionService
         // Appliquer
         tileData.Building = type;
         BuildingResourceService.DeductResources(costData.resourceCosts);
-        TileManager.Instance.PlaceBuildingTile(cellPosition, type);
+        TileManager.Instance.BuildingRenderer.PlaceBuilding(cellPosition, type);
         BuildingManager.Instance.AddBuilding(cellPosition, type);
         BuildingManager.NotifyConstruction();
 
@@ -36,7 +36,7 @@ public static class ConstructionService
 
     public static bool TryDestroy(Vector3Int cellPosition)
     {
-        TileData tileData = TileManager.Instance.GetTileData(cellPosition);
+        TileData tileData = TileManager.Instance.DataManager.GetTileData(cellPosition);
         if (tileData == null || tileData.Building == BuildingType.None)
         {
             UIManager.Instance.ShowFloatingText("Aucun batiment à détruire ici", cellPosition, Color.red);
@@ -56,7 +56,7 @@ public static class ConstructionService
         }
 
         // Visuel
-        TileManager.Instance.RemoveBuilding(cellPosition);
+        TileManager.Instance.BuildingRenderer.RemoveBuilding(cellPosition);
 
         // Données
         tileData.Building = BuildingType.None;

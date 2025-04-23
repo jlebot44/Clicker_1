@@ -60,7 +60,7 @@ public class FogManager : MonoBehaviour
 
     private void HandleTileSelected(Vector3Int cellPosition)
     {
-        TileData tileData = TileManager.Instance.GetTileData(cellPosition);
+        TileData tileData = TileManager.Instance.DataManager.GetTileData(cellPosition);
         if (tileData != null && tileData.CurrentFog > 0) // Clic gauche pour dissiper le brouillard
         {
             if (!ResourceManager.Instance.HasEnoughResources(ResourceType.Mana, clickPower))
@@ -141,7 +141,7 @@ public class FogManager : MonoBehaviour
         foreach (var dir in directions)
         {
             Vector3Int neighborPos = cellPosition + dir;
-            TileData neighborTile = TileManager.Instance.GetTileData(neighborPos);
+            TileData neighborTile = TileManager.Instance.DataManager.GetTileData(neighborPos);
 
             if (neighborTile != null && neighborTile.CurrentFog <= 0)
             {

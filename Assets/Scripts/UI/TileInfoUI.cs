@@ -32,7 +32,7 @@ public class TileInfoUI : MonoBehaviour
 
     private void UpdateTileInfo(Vector3Int cellPposition)
     {
-        TileData tileData = TileManager.Instance.GetTileData(cellPposition);
+        TileData tileData = TileManager.Instance.DataManager.GetTileData(cellPposition);
         if (tileData == null || !tileData.IsClaimed)
         {
             ShowUI(false);

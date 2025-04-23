@@ -10,15 +10,15 @@ public static class BuildingValidatorService
 
     public static bool CanBuild(BuildingType type, Vector3Int cellPosition)
     {
-        TileData tile = TileManager.Instance.GetTileData(cellPosition);
+        TileData tile = TileManager.Instance.DataManager.GetTileData(cellPosition);
         if (tile == null || tile.Building != BuildingType.None || !tile.IsClaimed)
             return false;
 
-        bool isGrass = TileManager.Instance.isTargetGroundOnTile(cellPosition, GroundType.Grass);
-        bool isMountain = TileManager.Instance.isTargetReliefOnTile(cellPosition, ReliefType.Mountain);
-        bool noRelief = TileManager.Instance.isTargetReliefOnTile(cellPosition, ReliefType.None);
-        bool hasAdjacentRoadOrTown = directions.Any(dir => TileManager.Instance.IsRoadOrTown(cellPosition + dir, true));
-        bool hasAdjacentWood = directions.Any(dir => TileManager.Instance.isTargetReliefOnTile(cellPosition + dir, ReliefType.Wood));
+        bool isGrass = TileManager.Instance.DataManager.IsTargetGround(cellPosition, GroundType.Grass);
+        bool isMountain = TileManager.Instance.DataManager.IsTargetRelief(cellPosition, ReliefType.Mountain);
+        bool noRelief = TileManager.Instance.DataManager.IsTargetRelief(cellPosition, ReliefType.None);
+        bool hasAdjacentRoadOrTown = directions.Any(dir => TileManager.Instance.DataManager.IsRoadOrTown(cellPosition + dir, true));
+        bool hasAdjacentWood = directions.Any(dir => TileManager.Instance.DataManager.IsTargetRelief(cellPosition + dir, ReliefType.Wood));
 
         return type switch
         {
@@ -33,7 +33,7 @@ public static class BuildingValidatorService
 
     public static bool CanEvolve(Vector3Int cellPosition)
     {
-        var tileData = TileManager.Instance.GetTileData(cellPosition);
+        var tileData = TileManager.Instance.DataManager.GetTileData(cellPosition);
         var buildingData = BuildingManager.Instance.GetBuildingData(cellPosition);
         var upgrade = BuildingManager.Instance.GetUpgradeData(tileData.Building, buildingData.Level + 1);
         return upgrade != null && BuildingManager.Instance.HasEnoughResourcesToEvol(upgrade);

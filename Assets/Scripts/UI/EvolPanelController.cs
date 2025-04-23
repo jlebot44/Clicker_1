@@ -32,7 +32,7 @@ public class EvolvePanelController : MonoBehaviour
 
     private void UpdateButtonText(Vector3Int cellPos)
     {
-        TileData tileData = TileManager.Instance.GetTileData(cellPos);
+        TileData tileData = TileManager.Instance.DataManager.GetTileData(cellPos);
         BuildingData buildingData = BuildingManager.Instance.GetBuildingData(cellPos);
 
         if (tileData == null || buildingData == null)
