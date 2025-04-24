@@ -39,7 +39,6 @@ public class TileClickHandler : MonoBehaviour
             Vector3Int cellPosition = _tilemap.WorldToCell(mouseWorldPos);
 
             TileData selectedTileData = TileManager.Instance.DataManager.GetTileData(cellPosition);
-            Debug.Log(cellPosition);
 
             if (selectedTileData == null) return;
 
@@ -47,7 +46,12 @@ public class TileClickHandler : MonoBehaviour
 
             if (BuildModeManager.Instance.IsInBuildMode)
             {
-                TryBuildAt(cellPosition);
+                var selected = BuildModeManager.Instance.SelectedBuilding;
+
+                if (selected == BuildingType.None)
+                    ConstructionService.TryDestroy(cellPosition);
+                else
+                    ConstructionService.TryConstruct(selected, cellPosition);
             }
             else
             {
@@ -57,29 +61,6 @@ public class TileClickHandler : MonoBehaviour
         }
     }
 
-    private void TryBuildAt(Vector3Int cellPosition)
-    {
-        BuildingType selected = BuildModeManager.Instance.SelectedBuilding;
-        if (selected == BuildingType.None)
-        {
-            // Si on est en mode destruction et qu’il y a un bâtiment
-            TileData tileData = TileManager.Instance.DataManager.GetTileData(cellPosition);
-            if (tileData != null && tileData.Building != BuildingType.None)
-            {
-                BuildingManager.Instance.Build(BuildingType.None, cellPosition);
-            }
-            return;
-        }
-
-        if (BuildingManager.Instance.CanBuild(selected, cellPosition))
-        {
-            BuildingManager.Instance.Build(selected, cellPosition);
-        }
-        else
-        {
-            UIManager.Instance.ShowFloatingText("Impossible de construire ici !", _tilemap.GetCellCenterWorld(cellPosition), Color.red);
-        }
-    }
 
     private void HandleTileSelected(Vector3Int cellPosition)
     {
@@ -87,9 +68,9 @@ public class TileClickHandler : MonoBehaviour
 
         // ici on filtre l'evolution sur les ville claimed et reliés à la capitale. A faire evoluer si on permet l'evolution d'autre building
         if (tileData == null
-            || !(tileData.Building == BuildingType.Town || tileData.Building == BuildingType.Capital)
+            || !(BuildingQueryService.GetBuildingType(cellPosition) == BuildingType.Town || BuildingQueryService.GetBuildingType(cellPosition) == BuildingType.Capital)
             || !tileData.IsClaimed
-            || (tileData.Building == BuildingType.Town && !tileData.IsConnectedToCapital))
+            || (BuildingQueryService.GetBuildingType(cellPosition) == BuildingType.Town && !tileData.IsConnectedToCapital))
         {
             HideEvolvePanel();
             return;

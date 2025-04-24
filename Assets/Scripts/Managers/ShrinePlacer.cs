@@ -10,7 +10,20 @@ public class ShrinePlacement
 
 public class ShrinePlacer : MonoBehaviour
 {
+    public static ShrinePlacer Instance { get; private set; }
+
     [SerializeField] private List<ShrinePlacement> placedShrines;
+
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -37,4 +50,14 @@ public class ShrinePlacer : MonoBehaviour
         }
         return null;
     }
+    public ShrineBonusData FindBonusDataByName(string name)
+    {
+        foreach (var shrine in placedShrines)
+        {
+            if (shrine.bonusData != null && shrine.bonusData.bonusName == name)
+                return shrine.bonusData;
+        }
+        return null;
+    }
+
 }

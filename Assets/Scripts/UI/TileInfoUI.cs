@@ -30,31 +30,24 @@ public class TileInfoUI : MonoBehaviour
         TileClickHandler.OnTileSelected -= UpdateTileInfo;
     }
 
-    private void UpdateTileInfo(Vector3Int cellPposition)
+    private void UpdateTileInfo(Vector3Int cellPosition)
     {
-        TileData tileData = TileManager.Instance.DataManager.GetTileData(cellPposition);
+        TileData tileData = TileManager.Instance.DataManager.GetTileData(cellPosition);
         if (tileData == null || !tileData.IsClaimed)
         {
             ShowUI(false);
             return;
         }
-        string buildingLevel = "None";        
 
-        if ( tileData.Building == BuildingType.Town || tileData.Building == BuildingType.Capital)
-        {
-            BuildingData buildingData = BuildingManager.Instance.GetBuildingData(cellPposition);
-            buildingLevel = buildingData.Level.ToString();                
-        }
+        BuildingType buildingType = BuildingQueryService.GetBuildingType(cellPosition);
+        int? buildingLevel = BuildingQueryService.GetLevel(cellPosition);
 
-
-        
-        _tileInfoPositionTMP.text = $"Position: {cellPposition}\n";
+        _tileInfoPositionTMP.text = $"Position: {cellPosition}\n";
         _tileInfoGroundTMP.text = $"Terrain: {tileData.Ground}\n";
         _tileInfoReliefTMP.text = $"Relief: {tileData.Relief}\n";
-        _tileInfoBuildingTMP.text = $"Bâtiment: {tileData.Building}";
+        _tileInfoBuildingTMP.text = $"Bâtiment: {buildingType}";
         _tileInfoBuildingLevelTMP.text = $"Niveau : {buildingLevel}";
         _tileInfoIsConnectedTMP.text = $"Liaison Capital: {tileData.IsConnectedToCapital}";
-
 
         ShowUI(true);
     }

@@ -13,7 +13,7 @@ public static class ConstructionService
 
         if (!BuildingManager.Instance.CanBuild(type, cellPosition))
         {
-            Debug.Log("Conditions de construction non remplies.");
+            UIManager.Instance.ShowFloatingText("Impossible de construire ici !", cellPosition, Color.red);
             return false;
         }
 
@@ -25,7 +25,7 @@ public static class ConstructionService
         }
 
         // Appliquer
-        tileData.Building = type;
+        //tileData.Building = type;
         BuildingResourceService.DeductResources(costData.resourceCosts);
         TileManager.Instance.BuildingRenderer.PlaceBuilding(cellPosition, type);
         BuildingManager.Instance.AddBuilding(cellPosition, type);
@@ -36,20 +36,19 @@ public static class ConstructionService
 
     public static bool TryDestroy(Vector3Int cellPosition)
     {
-        TileData tileData = TileManager.Instance.DataManager.GetTileData(cellPosition);
-        if (tileData == null || tileData.Building == BuildingType.None)
+        if (BuildingQueryService.GetBuildingType(cellPosition) == BuildingType.None)
         {
             UIManager.Instance.ShowFloatingText("Aucun batiment à détruire ici", cellPosition, Color.red);
             return false;
         }
 
-        if (tileData.Building == BuildingType.Town || tileData.Building == BuildingType.Capital)
+        if (BuildingQueryService.GetBuildingType(cellPosition) == BuildingType.Town || BuildingQueryService.GetBuildingType(cellPosition) == BuildingType.Capital)
         {
             UIManager.Instance.ShowFloatingText("Impossible de supprimer une ville", cellPosition, Color.red);
             return false;
         }
 
-        if (tileData.Building == BuildingType.Road)
+        if (BuildingQueryService.GetBuildingType(cellPosition) == BuildingType.Road)
         {
             UIManager.Instance.ShowFloatingText("Impossible de supprimer une route pour le moment", cellPosition, Color.red);
             return false;
@@ -59,7 +58,7 @@ public static class ConstructionService
         TileManager.Instance.BuildingRenderer.RemoveBuilding(cellPosition);
 
         // Données
-        tileData.Building = BuildingType.None;
+        //tileData.Building = BuildingType.None;
         BuildingManager.Instance.BuildingsDataMap.Remove(cellPosition);
 
         BuildingManager.NotifyConstruction();

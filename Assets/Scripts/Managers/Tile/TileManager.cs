@@ -40,12 +40,7 @@ public class TileManager : MonoBehaviour
     private Dictionary<int, TileBase> _roadTypeMapping;
     public Dictionary<BuildingType, TileBase> BuildingTiles { get; private set; }
 
-    private Vector3Int[] _directions = {
-        Vector3Int.up,
-        Vector3Int.down,
-        Vector3Int.left,
-        Vector3Int.right
-    };
+
 
     public Tilemap GroundTilemap => _groundTilemap;
     public Tilemap ReliefTilemap => _reliefTilemap;
@@ -53,12 +48,15 @@ public class TileManager : MonoBehaviour
     public Tilemap FogTilemap => _fogTilemap;
     public Dictionary<Vector3Int, TileData> TileDataMap => _tileDataMap;
     public Dictionary<int, TileBase> RoadTypeMapping => _roadTypeMapping;
-    public Vector3Int[] Directions => _directions;
     public GameObject DustEffectPrefab => dustEffectPrefab;
 
     public TileDataManager DataManager { get; private set; }
     public RoadTileRenderer RoadRenderer { get; private set; }
     public BuildingTileRenderer BuildingRenderer { get; private set; }
+
+
+
+    private Dictionary<TileBase, BuildingType> _tileToBuildingTypeMap;
 
     private void Awake()
     {
@@ -120,11 +118,10 @@ public class TileManager : MonoBehaviour
 
                 GroundType groundType = groundTile != null ? ClassifyGroundType(groundTile.name) : GroundType.None;
                 ReliefType reliefType = reliefTile != null ? ClassifyReliefType(reliefTile.name) : ReliefType.None;
-                BuildingType buildingType = buildingTile != null ? ClassifyBuildingType(buildingTile.name) : BuildingType.None;
 
                 int fogLevel = Mathf.CeilToInt((Mathf.Abs(pos.x) + Mathf.Abs(pos.y)) * GetFogMultiplier(reliefType));
 
-                TileData tileData = new TileData(groundType, reliefType, buildingType, fogLevel);
+                TileData tileData = new TileData(groundType, reliefType, fogLevel);
 
                 if (pos == Vector3Int.zero)
                 {
@@ -166,13 +163,4 @@ public class TileManager : MonoBehaviour
         return ReliefType.Other;
     }
 
-    private BuildingType ClassifyBuildingType(string tileName)
-    {
-        if (string.IsNullOrEmpty(tileName)) return BuildingType.None;
-        tileName = tileName.ToLower();
-        if (tileName.Contains("town")) return BuildingType.Town;
-        if (tileName.Contains("capital")) return BuildingType.Capital;
-        if (tileName.Contains("shrine")) return BuildingType.BonusShrine;
-        return BuildingType.Other;
-    }
 }

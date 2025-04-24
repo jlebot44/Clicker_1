@@ -30,10 +30,10 @@ public class EvolvePanelController : MonoBehaviour
     }
 
 
-    private void UpdateButtonText(Vector3Int cellPos)
+    private void UpdateButtonText(Vector3Int cellPosition)
     {
-        TileData tileData = TileManager.Instance.DataManager.GetTileData(cellPos);
-        BuildingData buildingData = BuildingManager.Instance.GetBuildingData(cellPos);
+        TileData tileData = TileManager.Instance.DataManager.GetTileData(cellPosition);
+        BuildingData buildingData = BuildingManager.Instance.GetBuildingData(cellPosition);
 
         if (tileData == null || buildingData == null)
         {
@@ -45,14 +45,14 @@ public class EvolvePanelController : MonoBehaviour
         int nextLevel = buildingData.Level + 1;
         int capitalLevel = BuildingManager.Instance.GetCapitalLevel();
 
-        if (nextLevel > capitalLevel && tileData.Building != BuildingType.Capital)
+        if (nextLevel > capitalLevel && BuildingQueryService.GetBuildingType(cellPosition) != BuildingType.Capital)
         {
             _evolveButtonText.text = $"Impossible : la capitale doit être au niveau {nextLevel} ou plus";
             _evolveButton.interactable = false;
             return;
         }
 
-        var upgradeData = BuildingManager.Instance.GetUpgradeData(tileData.Building, nextLevel);
+        var upgradeData = BuildingManager.Instance.GetUpgradeData(BuildingQueryService.GetBuildingType(cellPosition), nextLevel);
 
         if (upgradeData == null)
         {

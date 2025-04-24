@@ -29,6 +29,7 @@ public class SaveLoadManager : MonoBehaviour
         SaveClaimedTiles();
         SaveResources();
         SaveBuildings();
+        SaveBonuses();
         TogglePauseState();
     }
 
@@ -37,6 +38,7 @@ public class SaveLoadManager : MonoBehaviour
         LoadClaimedTiles();
         LoadBuildings();
         LoadResources();
+        LoadBonuses();
         TogglePauseState();
     }
 
@@ -83,7 +85,7 @@ public class SaveLoadManager : MonoBehaviour
                 tileData.IsClaimed = true;
                 tileData.Ground = savedTile.tileData.Ground;
                 tileData.Relief = savedTile.tileData.Relief;
-                tileData.Building = savedTile.tileData.Building;
+                //tileData.Building = savedTile.tileData.Building;
                 tileData.InitialFog = savedTile.tileData.InitialFog;
                 tileData.CurrentFog = savedTile.tileData.CurrentFog;
                 tileData.IsConnectedToCapital = savedTile.tileData.IsConnectedToCapital;
@@ -168,6 +170,45 @@ public class SaveLoadManager : MonoBehaviour
         ResourceManager.Instance.CalculCapacity();
     }
 
+    private void SaveBonuses()
+    {
+        var result = new List<SaveBonusEntry>();
+        var all = ShrineBonusManager.Instance.GetAllKnownBonuses();
+
+        
+
+        foreach (var bonus in all)
+        {
+            bool activated = ShrineBonusManager.Instance.IsActivated(bonus);
+            result.Add(new SaveBonusEntry(bonus.bonusName, activated));
+        }
+
+        SaveToFile(new BonusSaveData(result), "bonuses.json"); ;
+    }
+
+    private void LoadBonuses()
+    {
+        var data = LoadFromFile<BonusSaveData>("bonuses.json");
+        if (data == null || data.bonuses == null || data.bonuses.Count == 0)
+        {
+            Debug.LogWarning("Aucun bonus chargé depuis bonuses.json !");
+            return;
+        }
+
+        foreach (var entry in data.bonuses)
+        {
+            var bonus = ShrinePlacer.Instance.FindBonusDataByName(entry.BonusId);
+
+            if (bonus != null)
+            {
+                ShrineBonusManager.Instance.RegisterBonus(bonus);
+
+                if (entry.IsActivated)
+                    ShrineBonusManager.Instance.ActivateBonus(bonus);
+            }
+        }
+    }
+
     private void SaveToFile<T>(T data, string fileName)
     {
         try
@@ -197,6 +238,7 @@ public class SaveLoadManager : MonoBehaviour
         {
             string cryptedJson = File.ReadAllText(filePath);
             string json = _encryptionManager.Decrypt(cryptedJson);
+            //Debug.Log($"[LoadFromFile] {fileName} contenu déchiffré : {json}");
             T data = JsonUtility.FromJson<T>(json);
 
             if (data == null)

@@ -10,13 +10,11 @@ public class BuildingManager : MonoBehaviour
     // Événement pour notifier qu'une construction a été faite
     public static event Action OnBuildingConstructed;
 
-        // Liste des coûts de construction pour chaque bâtiment
+    // Liste des coûts de construction pour chaque bâtiment
     [SerializeField] private List<BuildingCostData> buildingCostsList;
 
     // liste des coûts pour l'évolution des batiments
     [SerializeField] private List<BuildingUpgradeData> upgradeDataList;
-
-
 
     // Dictionnaire global des bâtiments
     [SerializeField] private Dictionary<Vector3Int, BuildingData> _buildingsDataMap = new Dictionary<Vector3Int, BuildingData>();
@@ -80,7 +78,6 @@ public class BuildingManager : MonoBehaviour
     {
         // Recherche dans une liste ou base de données des coûts pour chaque type de bâtiment
         return buildingCostsList.Find(cost => cost.buildingType == buildingType);
-
     }
 
     public BuildingUpgradeData GetUpgradeData(BuildingType buildingType, int targetLevel)
@@ -107,34 +104,7 @@ public class BuildingManager : MonoBehaviour
 
     public void UpgradeBuilding(Vector3Int position)
     {
-        if (!BuildingsDataMap.ContainsKey(position))
-            return;
-
-        // Sécurité : revalide si on peut évoluer
-        if (!BuildingValidatorService.CanEvolve(position)) 
-            return;        
-
-        BuildingData buildingData = BuildingsDataMap[position];
-        TileData tileData = TileManager.Instance.DataManager.GetTileData(position);
-
-        BuildingUpgradeData upgradeData = GetUpgradeData(tileData.Building, buildingData.Level + 1);
-        if (upgradeData == null)
-        {
-            Debug.Log("Aucune donnée d'évolution trouvée.");
-            return;
-        }
-
-        // Appliquer les changements
-        DeductResourcesForEvol(upgradeData);
-        buildingData.Level++;
-
-        // Recalculer les per-turn et autres stats
-        ResourceManager.Instance.CalculResources();
-
-
-        NotifyConstruction();
-
-
+        BuildingUpgradeService.TryUpgrade(position);
     }
 
 
@@ -154,6 +124,4 @@ public class BuildingManager : MonoBehaviour
     {
         OnBuildingConstructed?.Invoke();
     }
-
-
 }

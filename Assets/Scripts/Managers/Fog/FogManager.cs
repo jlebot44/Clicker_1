@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -10,6 +11,8 @@ using UnityEngine.UIElements;
 public class FogManager : MonoBehaviour
 {
     public static FogManager Instance { get; private set; }  // patern singleton
+
+    public static event Action<int> OnClickPowerChanged;
 
     [SerializeField] private Tilemap _fogTilemap; // Tilemap du brouillard
     [SerializeField] private Camera _mainCamera; // Caméra principale
@@ -119,7 +122,7 @@ public class FogManager : MonoBehaviour
         if (tileData.CurrentFog <= 0)
         {
             RevealTile(cellPosition, tileData);
-            if (tileData.Building == BuildingType.Town)
+            if (BuildingQueryService.DetectBuildingTypeFromTilemap(cellPosition) == BuildingType.Town)
             {
                 ResourceManager.Instance.CalculResources();
             }
@@ -228,10 +231,11 @@ public class FogManager : MonoBehaviour
 
     private void HandleBuildingReveal(Vector3Int cellPosition, TileData tileData)
     {
-        if (tileData.Building == BuildingType.None)
+        BuildingType buildingType = BuildingQueryService.DetectBuildingTypeFromTilemap(cellPosition);
+        if (buildingType == BuildingType.None)
             return;
 
-        if (tileData.Building == BuildingType.BonusShrine)
+        if (buildingType == BuildingType.BonusShrine)
         {
             Debug.Log("Shrine révélé !");
 
@@ -246,21 +250,22 @@ public class FogManager : MonoBehaviour
             {
                 Debug.LogWarning($"Aucun ShrineBonusData trouvé pour la position {cellPosition}");
                 // On fallback sur une construction standard si nécessaire
-                BuildingManager.Instance.AddBuilding(cellPosition, tileData.Building);
+                BuildingManager.Instance.AddBuilding(cellPosition, buildingType);
             }
         }
         else
         {
-            BuildingManager.Instance.AddBuilding(cellPosition, tileData.Building);
+            BuildingManager.Instance.AddBuilding(cellPosition, buildingType);
         }
 
         // Actions spécifiques pour une ville révélée
-        if (tileData.Building == BuildingType.Town)
+        if (buildingType == BuildingType.Town)
         {
             _fogEffectManager.PlayTownRevealSFX();
             _fogEffectManager.PlayCaptureEffect(cellPosition, _fogTilemap);
             StartCoroutine(_cameraEffectManager.Shake(_mainCamera));
             ResourceManager.Instance.CalculResources();
+            TileManager.Instance.RoadRenderer.UpdateSurroundingRoads(cellPosition);
         }
     }
 
@@ -283,7 +288,7 @@ public class FogManager : MonoBehaviour
     public void IncreaseClickPower(int amount)
     {
         clickPower += amount;
-        Debug.Log($"Click Power augmenté ! Nouveau : {clickPower}");
+        OnClickPowerChanged?.Invoke(clickPower);
     }
 
 

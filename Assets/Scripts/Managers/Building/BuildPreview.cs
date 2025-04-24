@@ -23,18 +23,12 @@ public class BuildPreview : MonoBehaviour
             return;
         }
 
-
-
         Vector3 mouseWorld = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         Vector3Int cellPos = TileManager.Instance.GroundTilemap.WorldToCell(mouseWorld);
-
         previewTilemap.ClearAllTiles();
-
         BuildingType selected = BuildModeManager.Instance.SelectedBuilding;
-
-        bool canBuild = BuildingManager.Instance.CanBuild(selected, cellPos);
+        bool canBuild = BuildingValidatorService.CanBuild(selected, cellPos);
         TileBase tile = canBuild ? validPreviewTile : invalidPreviewTile;
-
         previewTilemap.SetTile(cellPos, tile);
     }
 }

@@ -17,10 +17,7 @@ public class ResourceUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _woodPerTurnText;
     [SerializeField] private TextMeshProUGUI _stonePerTurnText;
 
-    //[SerializeField] private TextMeshProUGUI _manaCapacityText;
-    //[SerializeField] private TextMeshProUGUI _goldCapacityText;
-    //[SerializeField] private TextMeshProUGUI _woodCapacityText;
-    //[SerializeField] private TextMeshProUGUI _stoneCapacityText;
+    [SerializeField] private TextMeshProUGUI _clickPowerTMP;
 
     private int _mana = 50;
     private int _gold = 10;
@@ -41,10 +38,10 @@ public class ResourceUI : MonoBehaviour
     {
         // S'abonne à l'événement
         ResourceManager.OnTilesChanged += UpdateTilesDisplay;
-
         ResourceManager.OnResourceChanged += UpdateResourceDisplay;
         ResourceManager.OnResourcePerTurnChanged += UpdateResourcePertTurnDisplay;
         ResourceManager.OnResourceCapacityChanged += UpdateResourceCapacityDisplay;
+        FogManager.OnClickPowerChanged += UpdateClickPowerDisplay;
 
     }
 
@@ -52,10 +49,10 @@ public class ResourceUI : MonoBehaviour
     {
         // Se désabonne quand l'objet est désactivé
         ResourceManager.OnTilesChanged -= UpdateTilesDisplay;
-
         ResourceManager.OnResourceChanged -= UpdateResourceDisplay;
         ResourceManager.OnResourcePerTurnChanged -= UpdateResourcePertTurnDisplay;
         ResourceManager.OnResourceCapacityChanged -= UpdateResourceCapacityDisplay;
+        FogManager.OnClickPowerChanged -= UpdateClickPowerDisplay;
 
     }
 
@@ -63,6 +60,11 @@ public class ResourceUI : MonoBehaviour
     private void UpdateTilesDisplay(int newTiles)
     {
         _tilesText.text = newTiles.ToString(); // Met à jour l'affichage du nombre de tuiles révélées
+    }
+
+    public void UpdateClickPowerDisplay(int value)
+    {
+        _clickPowerTMP.text = value.ToString();
     }
 
 
@@ -130,6 +132,8 @@ public class ResourceUI : MonoBehaviour
                 break;
         }
     }
+
+
 
 }
 
