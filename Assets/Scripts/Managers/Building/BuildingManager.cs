@@ -65,7 +65,7 @@ public class BuildingManager : MonoBehaviour
         _buildingsDataMap[position] = buildingData;
     }
 
-    public void AddShrineBuilding(Vector3Int position, ShrineBonusData bonusData)
+    public void RegisterShrineBuilding(Vector3Int position, ShrineBonusData bonusData)
     {
         ShrineBuildingData shrineData = new ShrineBuildingData(BuildingType.BonusShrine, bonusData);
         _buildingsDataMap[position] = shrineData;

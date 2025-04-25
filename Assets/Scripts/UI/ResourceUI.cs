@@ -132,7 +132,28 @@ public class ResourceUI : MonoBehaviour
                 break;
         }
     }
+    public void Refresh()
+    {
+        var manager = ResourceManager.Instance;
 
+        // Ressources actuelles
+        UpdateResourceDisplay(ResourceType.Mana, manager.GetResource(ResourceType.Mana));
+        UpdateResourceDisplay(ResourceType.Gold, manager.GetResource(ResourceType.Gold));
+        UpdateResourceDisplay(ResourceType.Wood, manager.GetResource(ResourceType.Wood));
+        UpdateResourceDisplay(ResourceType.Stone, manager.GetResource(ResourceType.Stone));
+
+        // Capacités
+        UpdateResourceCapacityDisplay(ResourceType.Mana, manager.GetCapacity(ResourceType.Mana));
+        UpdateResourceCapacityDisplay(ResourceType.Gold, manager.GetCapacity(ResourceType.Gold));
+        UpdateResourceCapacityDisplay(ResourceType.Wood, manager.GetCapacity(ResourceType.Wood));
+        UpdateResourceCapacityDisplay(ResourceType.Stone, manager.GetCapacity(ResourceType.Stone));
+
+
+        UpdateResourcePertTurnDisplay(ResourceType.Mana, manager.GetPerTurn(ResourceType.Mana));
+        UpdateResourcePertTurnDisplay(ResourceType.Gold, manager.GetPerTurn(ResourceType.Gold));
+        UpdateResourcePertTurnDisplay(ResourceType.Wood, manager.GetPerTurn(ResourceType.Wood));
+        UpdateResourcePertTurnDisplay(ResourceType.Stone, manager.GetPerTurn(ResourceType.Stone));
+    }
 
 
 }

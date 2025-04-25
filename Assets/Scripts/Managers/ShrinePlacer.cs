@@ -30,7 +30,7 @@ public class ShrinePlacer : MonoBehaviour
         foreach (var shrine in placedShrines)
         {
             // Ajoute le shrine à BuildingManager
-            BuildingManager.Instance.AddShrineBuilding(shrine.position, shrine.bonusData);
+            BuildingManager.Instance.RegisterShrineBuilding(shrine.position, shrine.bonusData);
 
             // Si la case est déjà claim (révélée), on enregistre directement le bonus
             TileData tileData = TileManager.Instance.DataManager.GetTileData(shrine.position);

@@ -353,4 +353,16 @@ public class ResourceManager : MonoBehaviour
             _ => false
         };
     }
+
+    public int GetPerTurn(ResourceType type)
+    {
+        return type switch
+        {
+            ResourceType.Mana => _manaPerTurn,
+            ResourceType.Gold => _goldPerTurn,
+            ResourceType.Wood => _woodPerTurn,
+            ResourceType.Stone => _stonePerTurn,
+            _ => 0
+        };
+    }
 }

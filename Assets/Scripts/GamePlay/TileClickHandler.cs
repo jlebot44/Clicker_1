@@ -9,9 +9,8 @@ public class TileClickHandler : MonoBehaviour
 
     [SerializeField] private Tilemap _tilemap;
     [SerializeField] private TileClickAnimation _tileClickAnimation;
-    [SerializeField] private EvolvePanelController evolvePanelPrefab;
+    [SerializeField] private TownUpgradePanelUI _townUpgradePanel;
 
-    private EvolvePanelController currentEvolvePanel;
 
 
 
@@ -81,29 +80,12 @@ public class TileClickHandler : MonoBehaviour
 
     private void ShowEvolvePanel(Vector3Int cellPos)
     {
-        if (currentEvolvePanel != null)
-            Destroy(currentEvolvePanel.gameObject);
-
-        currentEvolvePanel = Instantiate(evolvePanelPrefab);
-
-        // 1. Appel avec la vraie position logique
-        currentEvolvePanel.Show(cellPos, transform, () =>
-        {
-            BuildingManager.Instance.UpgradeBuilding(cellPos);
-        });
-
-        // 2. Positionnement visuel du panneau légèrement au-dessus
-        currentEvolvePanel.transform.position =
-            TileManager.Instance.BuildingTilemap.GetCellCenterWorld(cellPos) + Vector3.up * 2.5f;
+        _townUpgradePanel.Show(cellPos);
     }
 
     private void HideEvolvePanel()
     {
-        if (currentEvolvePanel != null)
-        {
-            Destroy(currentEvolvePanel.gameObject);
-            currentEvolvePanel = null;
-        }
+        _townUpgradePanel.Hide();
     }
 
 

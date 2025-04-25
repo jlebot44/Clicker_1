@@ -236,21 +236,16 @@ public class FogManager : MonoBehaviour
             return;
 
         if (buildingType == BuildingType.BonusShrine)
-        {
-            Debug.Log("Shrine révélé !");
-
+        {    
             // Récupérer le ShrineBonusData via le ShrinePlacer
             ShrineBonusData bonusData = _shrinePlacer.FindBonusDataAtPosition(cellPosition);
             if (bonusData != null)
             {
-                BuildingManager.Instance.AddShrineBuilding(cellPosition, bonusData);
                 ShrineBonusManager.Instance.RegisterBonus(bonusData);
             }
             else
             {
                 Debug.LogWarning($"Aucun ShrineBonusData trouvé pour la position {cellPosition}");
-                // On fallback sur une construction standard si nécessaire
-                BuildingManager.Instance.AddBuilding(cellPosition, buildingType);
             }
         }
         else
